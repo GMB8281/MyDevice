@@ -1,0 +1,35 @@
+<resources>
+    <!-- App e Tile -->
+    <string name="app_name">Limpar Cache</string>
+    <string name="qs_tile_label">Limpar Cache</string>
+    <string name="cleaning_cache">Limpando cache…</string>
+
+    <!-- Diálogo de Configuração de Exclusão (Primeira Execução) -->
+    <string name="exclude_dialog_title">Configurar Exclusões?</string>
+    <string name="exclude_dialog_message">Deseja escolher aplicativos para excluir da limpeza de cache?</string>
+    <string name="exclude_dialog_positive_button">Sim, escolher</string>
+    <string name="exclude_dialog_negative_button">Não, limpar tudo</string>
+
+    <!-- Diálogo de Confirmação Principal -->
+    <string name="confirm_dialog_title">Limpar arquivos temporários? (cache)</string>
+    <string name="confirm_dialog_message">Todos os aplicativos no dispositivo serão fechados.</string>
+    <string name="dialog_yes">Sim</string>
+    <string name="dialog_no">Não</string>
+    <string name="edit_ignored_apps">Editar Apps Ignorados</string>
+
+    <!-- Diálogos de Status -->
+    <string name="root_denied_dialog_title">Erro</string>
+    <string name="root_denied_dialog_message">Acesso root negado.</string>
+    <string name="dialog_ok">OK</string>
+    <string name="reboot_dialog_title">Reiniciar dispositivo?</string>
+
+    <!-- Activity de Exclusão de Apps -->
+    <string name="exclude_apps_title">Excluir da Limpeza</string>
+    <string name="exclude_apps_subtitle">Marque os apps que você NÃO deseja limpar.</string>
+    <string name="exclude_apps_save_button">Salvar e Continuar</string>
+
+    <!-- Item da Lista (Acessibilidade) -->
+    <string name="app_icon_content_description">Ícone do App</string>
+    <string name="search_bar">Pesquise por um aplicativo...</string>
+    <string name="search_app_button">Pesquisar app</string>
+</resources>

@@ -1,0 +1,35 @@
+<resources>
+    <!-- App and Tile -->
+    <string name="app_name">Clear Cache</string>
+    <string name="qs_tile_label">Clear Cache</string>
+    <string name="cleaning_cache">Cleaning cache…</string>
+
+    <!-- Exclude Setup Dialog (First Run) -->
+    <string name="exclude_dialog_title">Configure Exclusions?</string>
+    <string name="exclude_dialog_message">Do you want to select apps to exclude from the cache cleaning?</string>
+    <string name="exclude_dialog_positive_button">Yes, choose</string>
+    <string name="exclude_dialog_negative_button">No, clear all</string>
+
+    <!-- Main Confirmation Dialog -->
+    <string name="confirm_dialog_title">Clear temporary files? (cache)</string>
+    <string name="confirm_dialog_message">All apps on the device will be closed.</string>
+    <string name="dialog_yes">Yes</string>
+    <string name="dialog_no">No</string>
+    <string name="edit_ignored_apps">Edit ignored apps</string>
+
+    <!-- Status Dialogs -->
+    <string name="root_denied_dialog_title">Error</string>
+    <string name="root_denied_dialog_message">Root access denied.</string>
+    <string name="dialog_ok">OK</string>
+    <string name="reboot_dialog_title">Reboot device?</string>
+
+    <!-- Exclude Apps Activity -->
+    <string name="exclude_apps_title">Exclude from Cleaning</string>
+    <string name="exclude_apps_subtitle">Check the apps you do NOT want to clear.</string>
+    <string name="exclude_apps_save_button">Save and Continue</string>
+
+    <!-- List Item (Accessibility) -->
+    <string name="app_icon_content_description">App Icon</string>
+    <string name="search_bar">Search for an app...</string>
+    <string name="search_app_button">Search app</string>
+</resources>
