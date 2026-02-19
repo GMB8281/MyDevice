@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Necessário para obter a lista de todos os apps (Android 11+) -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="PackageVisibilityPolicy,QueryAllPackagesPermission" />
 
@@ -11,7 +10,6 @@
 
     <uses-permission android:name="android.permission.BROADCAST_CLOSE_SYSTEM_DIALOGS"
         tools:ignore="ProtectedPermissions" />
-
 
     <application
         android:allowBackup="true"
@@ -24,9 +22,11 @@
         android:theme="@style/Theme.LimparArquivosTemporários"
         tools:targetApi="31">
 
+        <!-- Adicionado configChanges para evitar restart ao rotacionar -->
         <activity
             android:name=".MainActivity"
             android:theme="@style/TransparentTheme"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -36,6 +36,7 @@
 
         <activity
             android:name=".ExcludeAppsActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:exported="false"
             android:label="Excluir Apps" />
 

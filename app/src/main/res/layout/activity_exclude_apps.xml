@@ -1,100 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ExcludeAppsActivity"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    tools:context=".ExcludeAppsActivity">
 
-    <TextView
-        android:id="@+id/title_text"
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/exclude_apps_title"
-        android:textAppearance="?attr/textAppearanceHeadline5"
-        android:padding="16dp"
-        android:layout_alignParentTop="true" />
+        android:background="@android:color/transparent"
+        app:elevation="0dp">
 
-    <TextView
-        android:id="@+id/subtitle_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/exclude_apps_subtitle"
-        android:textAppearance="?attr/textAppearanceBody1"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="8dp"
-        android:layout_below="@id/title_text" />
-
-    <!-- Container da Busca - Alinhado à direita -->
-    <LinearLayout
-        android:id="@+id/search_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/subtitle_text"
-        android:orientation="horizontal"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="8dp"
-        android:gravity="center_vertical|end">
-
-        <!--
-            EditText vem primeiro no XML para aparecer à esquerda do botão.
-            Usa layout_weight="1" para ocupar o espaço disponível quando visível.
-        -->
-        <EditText
-            android:id="@+id/search_bar"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/search_bar"
-            android:importantForAutofill="no"
-            android:visibility="gone"
-            android:inputType="text"
-            android:maxLines="1"
-            android:layout_marginEnd="8dp"/>
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-        <ImageButton
-            android:id="@+id/search_button"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@android:drawable/ic_menu_search"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/search_app_button" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp"
+                android:paddingTop="48dp"
+                android:paddingBottom="24dp">
 
-    </LinearLayout>
+                <TextView
+                    android:id="@+id/title_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/exclude_apps_title"
+                    android:textAppearance="?attr/textAppearanceHeadlineLarge"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/subtitle_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/exclude_apps_subtitle"
+                    android:textAppearance="?attr/textAppearanceBodyLarge"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+            </LinearLayout>
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="12dp"
+            android:gravity="center_vertical">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:boxBackgroundMode="outline"
+                app:boxCornerRadiusTopStart="28dp"
+                app:boxCornerRadiusTopEnd="28dp"
+                app:boxCornerRadiusBottomStart="28dp"
+                app:boxCornerRadiusBottomEnd="28dp"
+                app:startIconDrawable="@android:drawable/ic_menu_search"
+                app:hintEnabled="false"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+                <EditText
+                    android:id="@+id/search_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/search_bar"
+                    android:background="@android:color/transparent"
+                    android:inputType="text"
+                    android:maxLines="1" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/apps_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="88dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:listitem="@layout/list_item_app" />
 
     <ProgressBar
         android:id="@+id/progress_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        android:layout_gravity="center"
         style="?android:attr/progressBarStyleLarge" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/apps_recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_below="@id/search_container"
-        android:layout_above="@+id/save_button_container"
-        android:visibility="gone"
-        tools:listitem="@layout/list_item_app" />
-
-    <LinearLayout
-        android:id="@+id/save_button_container"
-        android:layout_width="match_parent"
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/save_button"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:padding="16dp"
-        android:orientation="horizontal">
+        android:layout_gravity="bottom|end"
+        android:layout_margin="24dp"
+        android:text="@string/exclude_apps_save_button"
+        android:textColor="?attr/colorOnPrimaryContainer"
+        app:backgroundTint="?attr/colorPrimaryContainer"
+        app:icon="@android:drawable/ic_menu_save"
+        app:iconTint="?attr/colorOnPrimaryContainer" />
 
-        <Button
-            android:id="@+id/save_button"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="@string/exclude_apps_save_button"
-            android:enabled="false"/>
-    </LinearLayout>
-
-</RelativeLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

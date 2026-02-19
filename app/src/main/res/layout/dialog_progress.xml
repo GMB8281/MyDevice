@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="24dp"
     android:orientation="horizontal"
-    android:gravity="center">
+    android:gravity="center_vertical">
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/progress"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:indeterminate="true"
-        />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true" />
 
+    <!-- CORREÇÃO: Usando ?attr/textAppearanceBodyLarge em vez de @style direto -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/cleaning_cache"
-        android:layout_marginStart="16dp"/>
+        android:textAppearance="?attr/textAppearanceBodyLarge"
+        android:layout_marginStart="24dp"/>
 </LinearLayout>

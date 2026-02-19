@@ -7,15 +7,16 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ProgressBar;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -27,15 +28,11 @@ public class ExcludeAppsActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private AppListAdapter adapter;
     private ProgressBar progressBar;
-    private Button saveButton;
-    private ImageButton searchButton;
+    private ExtendedFloatingActionButton saveButton;
     private EditText searchBar;
 
-    // Lista mestre contendo todos os apps
     private List<AppInfo> allAppsList;
-    // Lista exibida atualmente (filtrada ou não)
     private List<AppInfo> displayList;
-
     private SharedPreferences prefs;
 
     @Override
@@ -46,7 +43,6 @@ public class ExcludeAppsActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.apps_recycler_view);
         progressBar = findViewById(R.id.progress_bar);
         saveButton = findViewById(R.id.save_button);
-        searchButton = findViewById(R.id.search_button);
         searchBar = findViewById(R.id.search_bar);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -54,59 +50,50 @@ public class ExcludeAppsActivity extends AppCompatActivity {
         allAppsList = new ArrayList<>();
         displayList = new ArrayList<>();
 
-        // O adapter manipula a displayList
         adapter = new AppListAdapter(displayList);
         recyclerView.setAdapter(adapter);
 
         prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
 
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                if (dy > 0 && saveButton.isExtended()) {
+                    saveButton.shrink();
+                } else if (dy < 0 && !saveButton.isExtended()) {
+                    saveButton.extend();
+                }
+            }
+        });
+
         saveButton.setOnClickListener(v -> savePreferencesAndFinish());
 
         setupSearch();
-        setupBackPress(); // Configura o botão voltar
+        setupBackPress();
         loadApps();
     }
 
     private void setupSearch() {
-        // Toggle da barra de busca
-        searchButton.setOnClickListener(v -> {
-            if (searchBar.getVisibility() == View.GONE) {
-                searchBar.setVisibility(View.VISIBLE);
-                searchBar.requestFocus();
-            } else {
-                searchBar.setVisibility(View.GONE);
-                searchBar.setText(""); // Limpa a busca ao fechar
-                // O TextWatcher já chamará filterApps("")
-            }
-        });
-
-        // Lógica de filtro
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 filterApps(s.toString());
             }
-
             @Override
             public void afterTextChanged(Editable s) {}
         });
     }
 
     private void setupBackPress() {
-        // Intercepta o botão voltar do sistema
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (searchBar.getVisibility() == View.VISIBLE) {
-                    // 1. Se a busca estiver visível, limpa e esconde
+                if (!searchBar.getText().toString().isEmpty()) {
                     searchBar.setText("");
-                    searchBar.setVisibility(View.GONE);
                 } else {
-                    // 2. Se não estiver visível, prossegue com o voltar padrão (fecha a activity)
-                    setEnabled(false); // Desativa este callback para não entrar em loop
+                    setEnabled(false);
                     getOnBackPressedDispatcher().onBackPressed();
                 }
             }
@@ -136,12 +123,17 @@ public class ExcludeAppsActivity extends AppCompatActivity {
 
         new Thread(() -> {
             PackageManager pm = getPackageManager();
-            List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+            List<ApplicationInfo> packages;
+            try {
+                packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+            } catch (Exception e) {
+                packages = new ArrayList<>();
+            }
+
             Set<String> excluded = prefs.getStringSet("excluded_packages", new HashSet<>());
             List<AppInfo> loadedApps = new ArrayList<>();
 
             for (ApplicationInfo app : packages) {
-                // Filtra apps do sistema sem ícone de launcher (opcional)
                 if (pm.getLaunchIntentForPackage(app.packageName) != null || (app.flags & ApplicationInfo.FLAG_SYSTEM) != 0) {
                     AppInfo appInfo = new AppInfo();
                     appInfo.setAppName((String) pm.getApplicationLabel(app));
@@ -152,17 +144,15 @@ public class ExcludeAppsActivity extends AppCompatActivity {
                 }
             }
 
-            // Ordena a lista alfabeticamente
             loadedApps.sort((o1, o2) -> o1.getAppName().compareToIgnoreCase(o2.getAppName()));
 
             runOnUiThread(() -> {
+                if (isFinishing() || isDestroyed()) return;
+
                 allAppsList.clear();
                 allAppsList.addAll(loadedApps);
-
-                // Inicialmente a lista de exibição é igual à completa
                 displayList.clear();
                 displayList.addAll(allAppsList);
-
                 adapter.notifyDataSetChanged();
                 progressBar.setVisibility(View.GONE);
                 recyclerView.setVisibility(View.VISIBLE);
@@ -172,8 +162,6 @@ public class ExcludeAppsActivity extends AppCompatActivity {
     }
 
     private void savePreferencesAndFinish() {
-        // Importante: Usamos allAppsList para salvar, pois o adapter pode estar mostrando
-        // apenas uma lista filtrada (busca). Queremos salvar o estado de TUDO.
         Set<String> newExcludedSet = new HashSet<>();
         for (AppInfo app : allAppsList) {
             if (app.isChecked()) {

@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityResultLauncher<Intent> mExcludeAppsLauncher;
     private SharedPreferences prefs;
+    private AlertDialog currentDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,88 +40,94 @@ public class MainActivity extends AppCompatActivity {
         getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
 
-        // Registra o launcher para a atividade de exclusão de apps
         mExcludeAppsLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
-                    // Chamado quando ExcludeAppsActivity fecha (seja 1a vez ou edição)
-                    // Reabre o diálogo de confirmação principal
-                    showConfirmationDialog();
+                    if (!isFinishing()) showConfirmationDialog();
                 });
 
-        // Verifica se o usuário já configurou a lista
-        if (!prefs.getBoolean(KEY_EXCLUDE_CONFIGURED, false)) {
-            // Primeira execução
-            showExcludeAppsDialog();
-        } else {
-            // Já configurado
-            showConfirmationDialog();
+        if (savedInstanceState == null) {
+            if (!prefs.getBoolean(KEY_EXCLUDE_CONFIGURED, false)) {
+                showExcludeAppsDialog();
+            } else {
+                showConfirmationDialog();
+            }
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        // CORREÇÃO: Fecha qualquer diálogo ativo para evitar WindowLeaked
+        if (currentDialog != null && currentDialog.isShowing()) {
+            currentDialog.dismiss();
+        }
+        super.onDestroy();
+    }
+
     private void showExcludeAppsDialog() {
-        // NOTA: Recomenda-se atualizar o texto de R.string.exclude_dialog_message no strings.xml
-        // para remover menções de que não é possível editar a lista posteriormente.
-        new MaterialAlertDialogBuilder(this)
+        if (isFinishing() || isDestroyed()) return;
+        if (currentDialog != null && currentDialog.isShowing()) currentDialog.dismiss();
+
+        currentDialog = new MaterialAlertDialogBuilder(this)
                 .setTitle(getString(R.string.exclude_dialog_title))
                 .setMessage(getString(R.string.exclude_dialog_message))
-                .setPositiveButton(getString(R.string.exclude_dialog_positive_button), (dialog, which) -> {
-                    mExcludeAppsLauncher.launch(new Intent(this, ExcludeAppsActivity.class));
-                })
+                .setPositiveButton(getString(R.string.exclude_dialog_positive_button), (dialog, which) -> mExcludeAppsLauncher.launch(new Intent(this, ExcludeAppsActivity.class)))
                 .setNegativeButton(getString(R.string.exclude_dialog_negative_button), (dialog, which) -> {
                     prefs.edit()
                             .putBoolean(KEY_EXCLUDE_CONFIGURED, true)
                             .putStringSet(KEY_EXCLUDED_PACKAGES, new HashSet<>())
-                            .commit();
+                            .apply();
                     showConfirmationDialog();
                 })
                 .setCancelable(false)
-                .create()
-                .show();
+                .create();
+
+        currentDialog.setCanceledOnTouchOutside(false);
+        currentDialog.show();
     }
 
     private void showConfirmationDialog() {
-        new MaterialAlertDialogBuilder(this)
+        if (isFinishing() || isDestroyed()) return;
+        if (currentDialog != null && currentDialog.isShowing()) currentDialog.dismiss();
+
+        currentDialog = new MaterialAlertDialogBuilder(this)
                 .setTitle(getString(R.string.confirm_dialog_title))
                 .setMessage(getString(R.string.confirm_dialog_message))
-                .setPositiveButton(getString(R.string.dialog_yes), (dialog, which) -> {
-                    dialog.dismiss();
-                    showProgressAndExecute();
-                })
+                .setPositiveButton(getString(R.string.dialog_yes), (dialog, which) -> showProgressAndExecute())
                 .setNegativeButton(getString(R.string.dialog_no), (dialog, which) -> finish())
-                // Novo botão para editar a lista usando String Resource
-                .setNeutralButton(getString(R.string.edit_ignored_apps), (dialog, which) -> {
-                    // Usa o mesmo launcher para reabrir o diálogo ao voltar
-                    mExcludeAppsLauncher.launch(new Intent(this, ExcludeAppsActivity.class));
-                })
+                .setNeutralButton(getString(R.string.edit_ignored_apps), (dialog, which) -> mExcludeAppsLauncher.launch(new Intent(this, ExcludeAppsActivity.class)))
                 .setCancelable(false)
-                .create()
-                .show();
+                .create();
+
+        currentDialog.setCanceledOnTouchOutside(false);
+        currentDialog.show();
     }
 
     private void showProgressAndExecute() {
-        View progressView = LayoutInflater.from(this)
-                .inflate(R.layout.dialog_progress, null, false);
+        if (isFinishing() || isDestroyed()) return;
 
-        CircularProgressIndicator cpi =
-                progressView.findViewById(R.id.progress);
+        View progressView = LayoutInflater.from(this).inflate(R.layout.dialog_progress, null, false);
+        CircularProgressIndicator cpi = progressView.findViewById(R.id.progress);
         if (cpi != null) {
             cpi.setIndeterminate(true);
             cpi.show();
         }
 
-        AlertDialog progressDialog = new MaterialAlertDialogBuilder(this)
+        if (currentDialog != null && currentDialog.isShowing()) currentDialog.dismiss();
+
+        currentDialog = new MaterialAlertDialogBuilder(this)
                 .setView(progressView)
                 .setCancelable(false)
                 .create();
 
-        progressDialog.setOnShowListener(d -> {
-            if (progressDialog.getWindow() != null) {
-                progressDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        currentDialog.setCanceledOnTouchOutside(false);
+        currentDialog.setOnShowListener(d -> {
+            if (currentDialog.getWindow() != null) {
+                currentDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
             }
         });
 
-        progressDialog.show();
+        currentDialog.show();
 
         Set<String> excludedPackages = prefs.getStringSet(KEY_EXCLUDED_PACKAGES, new HashSet<>());
 
@@ -132,12 +139,18 @@ public class MainActivity extends AppCompatActivity {
                 os.flush();
                 exitCode = su.waitFor();
             } catch (Exception e) {
-                Log.e(TAG, "Error while clearing cache", e);
+                Log.e(TAG, "Erro ao limpar cache", e);
             }
 
             final int finalExitCode = exitCode;
             runOnUiThread(() -> {
-                progressDialog.dismiss();
+                // CORREÇÃO: Verifica estado da Activity antes de fechar o diálogo ou abrir novo
+                if (isFinishing() || isDestroyed()) return;
+
+                if (currentDialog != null && currentDialog.isShowing()) {
+                    currentDialog.dismiss();
+                }
+
                 if (finalExitCode == 0) {
                     showRebootPrompt();
                 } else {
@@ -148,13 +161,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showRootDeniedDialog() {
-        new MaterialAlertDialogBuilder(this)
+        if (isFinishing() || isDestroyed()) return;
+
+        currentDialog = new MaterialAlertDialogBuilder(this)
                 .setTitle(getString(R.string.root_denied_dialog_title))
                 .setMessage(getString(R.string.root_denied_dialog_message))
                 .setPositiveButton(getString(R.string.dialog_ok), (dialog, which) -> finish())
                 .setCancelable(false)
-                .create()
-                .show();
+                .create();
+        currentDialog.show();
     }
 
     @NonNull
@@ -173,7 +188,6 @@ public class MainActivity extends AppCompatActivity {
 
         command.append(" ; then\n");
         os.writeBytes(command.toString());
-
         os.writeBytes("    am force-stop \"$pkg\"\n");
         os.writeBytes("  fi\n");
         os.writeBytes("done\n");
@@ -183,19 +197,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showRebootPrompt() {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
-        builder.setTitle(getString(R.string.reboot_dialog_title))
-                .setPositiveButton(getString(R.string.dialog_yes), (dialog, which) -> {
-                    dialog.dismiss();
-                    rebootDevice();
-                })
-                .setNegativeButton(getString(R.string.dialog_no), (dialog, which) -> finish())
-                .setCancelable(false);
+        if (isFinishing() || isDestroyed()) return;
 
-        AlertDialog dialog = builder.create();
-        dialog.show();
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        currentDialog = new MaterialAlertDialogBuilder(this)
+                .setTitle(getString(R.string.reboot_dialog_title))
+                .setPositiveButton(getString(R.string.dialog_yes), (dialog, which) -> rebootDevice())
+                .setNegativeButton(getString(R.string.dialog_no), (dialog, which) -> finish())
+                .setCancelable(false)
+                .create();
+
+        currentDialog.setCanceledOnTouchOutside(false);
+        currentDialog.show();
+
+        if (currentDialog.getWindow() != null) {
+            currentDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         }
     }
 
@@ -209,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
                 os.flush();
                 su.waitFor();
             } catch (Exception e) {
-                Log.e(TAG, "Error while rebooting the device", e);
+                Log.e(TAG, "Erro ao reiniciar dispositivo", e);
             }
         }).start();
     }
