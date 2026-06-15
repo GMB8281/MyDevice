@@ -1,4 +1,4 @@
-# ClearCache [ROOT] #
+# MyDevice [ROOT] #
 
 <img src="https://gitlab.com/GMB8281/ClearCache/-/raw/master/app/src/main/ic_launcher-playstore.png?ref_type=heads" width="200"/> 
 

@@ -13,30 +13,25 @@ public class QuickTileService extends TileService {
     public void onClick() {
         super.onClick();
 
-        Intent intent = new Intent(this, MainActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);   // CLEAR_TOP não é necessário
+        // APONTANDO PARA A NOVA ACTIVITY DE LIMPEZA
+        Intent intent = new Intent(this, CleanCacheDialogActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        /* ---------- Opt‑in para BAL a partir da API 35 ---------- */
-        // A constante oficial é PendingIntent.FLAG_ALLOW_BAL (API 35).
-        // Use valor literal para compilações <35 onde a flag ainda não existe.
         final int FLAG_ALLOW_BAL =
-                (Build.VERSION.SDK_INT >= 35) ? 0x40000000 /*FLAG_ALLOW_BAL*/ : 0x40000000;
+                (Build.VERSION.SDK_INT >= 35) ? 0x40000000 : 0x40000000;
 
         int flags = PendingIntent.FLAG_UPDATE_CURRENT
                 | PendingIntent.FLAG_IMMUTABLE
-                | FLAG_ALLOW_BAL;        // opt‑in explícito
+                | FLAG_ALLOW_BAL;
 
         PendingIntent pi = PendingIntent.getActivity(this, 0, intent, flags);
 
-        // Único caminho: APIs 34+ exigem PendingIntent; em versões mais antigas
-        // startActivityAndCollapse(Intent) ainda é aceito, mas usar o PI é seguro.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE /*34*/) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             startActivityAndCollapse(pi);
         } else {
             try {
-                startActivityAndCollapse(intent);     // API <=33
+                startActivityAndCollapse(intent);
             } catch (UnsupportedOperationException e) {
-                // fallback se o método não aceitar Intent (casos raros)
                 startActivity(intent);
             }
         }
@@ -47,7 +42,6 @@ public class QuickTileService extends TileService {
         super.onStartListening();
         Tile tile = getQsTile();
         if (tile != null) {
-            // Atualizado para usar a string do strings.xml
             tile.setLabel(getString(R.string.qs_tile_label));
             tile.setIcon(Icon.createWithResource(this, R.drawable.ic_clear_cache));
             tile.setState(Tile.STATE_INACTIVE);

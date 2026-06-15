@@ -1,35 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- App and Tile -->
-    <string name="app_name">Clear Cache</string>
+    <string name="app_name">MyDevice</string>
     <string name="qs_tile_label">Clear Cache</string>
-    <string name="cleaning_cache">Cleaning cache…</string>
+    <string name="cleaning_cache">Clearing cache…</string>
 
-    <!-- Exclude Setup Dialog (First Run) -->
     <string name="exclude_dialog_title">Configure Exclusions?</string>
-    <string name="exclude_dialog_message">Do you want to select apps to exclude from the cache cleaning?</string>
-    <string name="exclude_dialog_positive_button">Yes, choose</string>
+    <string name="exclude_dialog_message">Would you like to select apps to prevent them from being closed during cleanup?</string>
+    <string name="exclude_dialog_positive_button">Yes, choose apps</string>
     <string name="exclude_dialog_negative_button">No, clear all</string>
 
-    <!-- Main Confirmation Dialog -->
     <string name="confirm_dialog_title">Clear temporary files? (cache)</string>
     <string name="confirm_dialog_message">All apps on the device will be closed.</string>
     <string name="dialog_yes">Yes</string>
     <string name="dialog_no">No</string>
     <string name="edit_ignored_apps">Edit ignored apps</string>
 
-    <!-- Status Dialogs -->
     <string name="root_denied_dialog_title">Error</string>
     <string name="root_denied_dialog_message">Root access denied.</string>
     <string name="dialog_ok">OK</string>
-    <string name="reboot_dialog_title">Reboot device?</string>
+    <string name="reboot_dialog_title">Restart device?</string>
 
-    <!-- Exclude Apps Activity -->
-    <string name="exclude_apps_title">Exclude from Cleaning</string>
-    <string name="exclude_apps_subtitle">Check the apps you do NOT want to clear.</string>
+    <string name="exclude_apps_title">Exclude from Cleanup</string>
+    <string name="exclude_apps_subtitle">Check the apps you DO NOT want to clear.</string>
     <string name="exclude_apps_save_button">Save and Continue</string>
 
-    <!-- List Item (Accessibility) -->
+    <string name="item_battery">Battery Saver</string>
+    <string name="item_battery_desc">Android power saving settings.</string>
+    <string name="item_storage">Storage</string>
+    <string name="item_storage_desc">Manage files and internal space</string>
+    <string name="item_clean_cache">Cache Cleanup</string>
+    <string name="item_clean_cache_desc">Close apps and clear memory</string>
+    <string name="item_power_mode">Power Mode</string>
+    <string name="item_power_mode_desc">Manage advanced power modes</string>
+    <string name="item_auto_reboot">Auto Reboot</string>
+    <string name="item_auto_reboot_desc">Schedule device restart</string>
+    <string name="item_auto_clean">Auto Cache Cleanup</string>
+    <string name="item_auto_clean_desc">Schedule daily background cleanup</string>
+
+    <string name="title_auto_reboot">Auto Reboot</string>
+    <string name="title_auto_clean">Auto Cleanup</string>
+
+    <string name="status_enabled">Enabled</string>
+    <string name="status_disabled">Disabled</string>
+    <string name="days_of_week">Days of the week</string>
+
+    <string name="search_bar">Search for an app…</string>
     <string name="app_icon_content_description">App Icon</string>
-    <string name="search_bar">Search for an app...</string>
-    <string name="search_app_button">Search app</string>
+
+    <string name="notification_channel_clean_name">Auto Cleanup</string>
+    <string name="notification_clean_title">Auto Cleanup</string>
+    <string name="notification_clean_text">Monitoring for scheduled cache cleanup</string>
+
+    <string name="notification_channel_reboot_name">Auto Reboot</string>
+    <string name="notification_reboot_title">Auto Reboot</string>
+    <string name="notification_reboot_text">Monitoring for scheduled restart</string>
+
+    <string name="running_service">Running device maintenance…</string>
 </resources>

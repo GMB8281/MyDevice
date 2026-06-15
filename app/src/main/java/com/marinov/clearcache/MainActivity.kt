@@ -1,231 +1,124 @@
-package com.marinov.clearcache;
+package com.marinov.clearcache
 
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.WindowManager;
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.os.PowerManager
+import android.provider.Settings
+import android.util.Log
+import android.view.View
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
+class MainActivity : AppCompatActivity() {
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.progressindicator.CircularProgressIndicator;
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+        requestRootPermission()
+        requestBatteryOptimizationAndNotifications()
 
-public class MainActivity extends AppCompatActivity {
+        setupUI()
+        setupListeners()
+    }
 
-    private static final String TAG = MainActivity.class.getSimpleName();
+    override fun onResume() {
+        super.onResume()
+        updatePowerModeState()
+        // Inicialização Agressiva dos Agendamentos (Item 5)
+        AlarmScheduler.scheduleAllAggressively(this)
+    }
 
-    private static final String PREFS_NAME = "app_prefs";
-    private static final String KEY_EXCLUDE_CONFIGURED = "exclude_list_configured";
-    private static final String KEY_EXCLUDED_PACKAGES = "excluded_packages";
+    private fun setupUI() {
+        // Item 3: Populando textos e ícones reais usando Drawables padrão do Android e Strings
+        setDashboardItem(R.id.btn_battery, R.drawable.ic_battery, getString(R.string.item_battery), getString(R.string.item_battery_desc))
+        setDashboardItem(R.id.btn_storage, R.drawable.ic_storage, getString(R.string.item_storage), getString(R.string.item_storage_desc))
+        setDashboardItem(R.id.btn_clean_cache, android.R.drawable.ic_menu_delete, getString(R.string.item_clean_cache), getString(R.string.item_clean_cache_desc))
+        setDashboardItem(R.id.btn_power_mode, R.drawable.ic_performance, getString(R.string.item_power_mode), getString(R.string.item_power_mode_desc))
+        setDashboardItem(R.id.btn_auto_reboot, R.drawable.ic_reboot, getString(R.string.item_auto_reboot), getString(R.string.item_auto_reboot_desc))
+        setDashboardItem(R.id.btn_auto_clean, R.drawable.ic_auto_clean, getString(R.string.item_auto_clean), getString(R.string.item_auto_clean_desc))
+    }
 
-    private ActivityResultLauncher<Intent> mExcludeAppsLauncher;
-    private SharedPreferences prefs;
-    private AlertDialog currentDialog;
+    private fun setDashboardItem(layoutId: Int, iconRes: Int, title: String, subtitle: String) {
+        val container = findViewById<View>(layoutId)
+        container.findViewById<ImageView>(R.id.item_icon).setImageResource(iconRes)
+        container.findViewById<TextView>(R.id.item_title).text = title
+        container.findViewById<TextView>(R.id.item_subtitle).text = subtitle
+    }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+    private fun setupListeners() {
+        findViewById<LinearLayout>(R.id.btn_battery).setOnClickListener {
+            val intent = Intent(Settings.ACTION_BATTERY_SAVER_SETTINGS)
+            if (intent.resolveActivity(packageManager) != null) startActivity(intent) else startActivity(Intent(Intent.ACTION_POWER_USAGE_SUMMARY))
+        }
 
-        mExcludeAppsLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (!isFinishing()) showConfirmationDialog();
-                });
+        findViewById<LinearLayout>(R.id.btn_storage).setOnClickListener {
+            startActivity(Intent(Settings.ACTION_INTERNAL_STORAGE_SETTINGS))
+        }
 
-        if (savedInstanceState == null) {
-            if (!prefs.getBoolean(KEY_EXCLUDE_CONFIGURED, false)) {
-                showExcludeAppsDialog();
-            } else {
-                showConfirmationDialog();
+        findViewById<LinearLayout>(R.id.btn_clean_cache).setOnClickListener {
+            startActivity(Intent(this, CleanCacheDialogActivity::class.java))
+        }
+
+        findViewById<LinearLayout>(R.id.btn_auto_reboot).setOnClickListener {
+            startActivity(Intent(this, RebootActivity::class.java))
+        }
+
+        findViewById<LinearLayout>(R.id.btn_auto_clean).setOnClickListener {
+            startActivity(Intent(this, AutoCleanCacheActivity::class.java))
+        }
+    }
+
+    private fun updatePowerModeState() {
+        val btnPowerMode = findViewById<LinearLayout>(R.id.btn_power_mode)
+        val powerAppPackage = "com.marinov.powermanagement"
+        val intent = packageManager.getLaunchIntentForPackage(powerAppPackage)
+
+        if (intent != null) {
+            btnPowerMode.alpha = 1.0f
+            btnPowerMode.isEnabled = true
+            btnPowerMode.setOnClickListener { startActivity(intent) }
+        } else {
+            btnPowerMode.alpha = 0.5f
+            btnPowerMode.isEnabled = false
+            btnPowerMode.setOnClickListener(null)
+        }
+    }
+
+    // Solicita Bateria Irrestrita (Item 7) e Notificações
+    private fun requestBatteryOptimizationAndNotifications() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+            intent.data = Uri.parse("package:$packageName")
+            val pm = getSystemService(POWER_SERVICE) as PowerManager
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                try { startActivity(intent) } catch (e: Exception) { Log.e("Main", "Erro ao pedir restrição de bateria", e) }
+            }
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 101)
             }
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        // CORREÇÃO: Fecha qualquer diálogo ativo para evitar WindowLeaked
-        if (currentDialog != null && currentDialog.isShowing()) {
-            currentDialog.dismiss();
-        }
-        super.onDestroy();
-    }
-
-    private void showExcludeAppsDialog() {
-        if (isFinishing() || isDestroyed()) return;
-        if (currentDialog != null && currentDialog.isShowing()) currentDialog.dismiss();
-
-        currentDialog = new MaterialAlertDialogBuilder(this)
-                .setTitle(getString(R.string.exclude_dialog_title))
-                .setMessage(getString(R.string.exclude_dialog_message))
-                .setPositiveButton(getString(R.string.exclude_dialog_positive_button), (dialog, which) -> mExcludeAppsLauncher.launch(new Intent(this, ExcludeAppsActivity.class)))
-                .setNegativeButton(getString(R.string.exclude_dialog_negative_button), (dialog, which) -> {
-                    prefs.edit()
-                            .putBoolean(KEY_EXCLUDE_CONFIGURED, true)
-                            .putStringSet(KEY_EXCLUDED_PACKAGES, new HashSet<>())
-                            .apply();
-                    showConfirmationDialog();
-                })
-                .setCancelable(false)
-                .create();
-
-        currentDialog.setCanceledOnTouchOutside(false);
-        currentDialog.show();
-    }
-
-    private void showConfirmationDialog() {
-        if (isFinishing() || isDestroyed()) return;
-        if (currentDialog != null && currentDialog.isShowing()) currentDialog.dismiss();
-
-        currentDialog = new MaterialAlertDialogBuilder(this)
-                .setTitle(getString(R.string.confirm_dialog_title))
-                .setMessage(getString(R.string.confirm_dialog_message))
-                .setPositiveButton(getString(R.string.dialog_yes), (dialog, which) -> showProgressAndExecute())
-                .setNegativeButton(getString(R.string.dialog_no), (dialog, which) -> finish())
-                .setNeutralButton(getString(R.string.edit_ignored_apps), (dialog, which) -> mExcludeAppsLauncher.launch(new Intent(this, ExcludeAppsActivity.class)))
-                .setCancelable(false)
-                .create();
-
-        currentDialog.setCanceledOnTouchOutside(false);
-        currentDialog.show();
-    }
-
-    private void showProgressAndExecute() {
-        if (isFinishing() || isDestroyed()) return;
-
-        View progressView = LayoutInflater.from(this).inflate(R.layout.dialog_progress, null, false);
-        CircularProgressIndicator cpi = progressView.findViewById(R.id.progress);
-        if (cpi != null) {
-            cpi.setIndeterminate(true);
-            cpi.show();
-        }
-
-        if (currentDialog != null && currentDialog.isShowing()) currentDialog.dismiss();
-
-        currentDialog = new MaterialAlertDialogBuilder(this)
-                .setView(progressView)
-                .setCancelable(false)
-                .create();
-
-        currentDialog.setCanceledOnTouchOutside(false);
-        currentDialog.setOnShowListener(d -> {
-            if (currentDialog.getWindow() != null) {
-                currentDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-            }
-        });
-
-        currentDialog.show();
-
-        Set<String> excludedPackages = prefs.getStringSet(KEY_EXCLUDED_PACKAGES, new HashSet<>());
-
-        new Thread(() -> {
-            int exitCode = -1;
+    private fun requestRootPermission() {
+        Thread {
             try {
-                Process su = Runtime.getRuntime().exec("su");
-                DataOutputStream os = getDataOutputStream(su, excludedPackages);
-                os.flush();
-                exitCode = su.waitFor();
-            } catch (Exception e) {
-                Log.e(TAG, "Erro ao limpar cache", e);
+                val process = Runtime.getRuntime().exec("su -c exit")
+                process.waitFor()
+            } catch (e: Exception) {
+                Log.e("MainActivity", "Sem acesso Root", e)
             }
-
-            final int finalExitCode = exitCode;
-            runOnUiThread(() -> {
-                // CORREÇÃO: Verifica estado da Activity antes de fechar o diálogo ou abrir novo
-                if (isFinishing() || isDestroyed()) return;
-
-                if (currentDialog != null && currentDialog.isShowing()) {
-                    currentDialog.dismiss();
-                }
-
-                if (finalExitCode == 0) {
-                    showRebootPrompt();
-                } else {
-                    showRootDeniedDialog();
-                }
-            });
-        }).start();
-    }
-
-    private void showRootDeniedDialog() {
-        if (isFinishing() || isDestroyed()) return;
-
-        currentDialog = new MaterialAlertDialogBuilder(this)
-                .setTitle(getString(R.string.root_denied_dialog_title))
-                .setMessage(getString(R.string.root_denied_dialog_message))
-                .setPositiveButton(getString(R.string.dialog_ok), (dialog, which) -> finish())
-                .setCancelable(false)
-                .create();
-        currentDialog.show();
-    }
-
-    @NonNull
-    private static DataOutputStream getDataOutputStream(Process su, Set<String> excludedPackages) throws IOException {
-        DataOutputStream os = new DataOutputStream(su.getOutputStream());
-        os.writeBytes("for pkg in $(pm list packages | sed 's/^package://'); do\n");
-
-        StringBuilder command = new StringBuilder("  if [ \"$pkg\" != \"com.marinov.clearcache\" ] "
-                + "&& [ \"$pkg\" != \"com.android.systemui\" ]");
-
-        for (String pkg : excludedPackages) {
-            if (pkg != null && pkg.matches("^[a-zA-Z0-9._-]+$")) {
-                command.append(" && [ \"$pkg\" != \"").append(pkg).append("\" ]");
-            }
-        }
-
-        command.append(" ; then\n");
-        os.writeBytes(command.toString());
-        os.writeBytes("    am force-stop \"$pkg\"\n");
-        os.writeBytes("  fi\n");
-        os.writeBytes("done\n");
-        os.writeBytes("pm trim-caches 9999999999999\n");
-        os.writeBytes("exit\n");
-        return os;
-    }
-
-    private void showRebootPrompt() {
-        if (isFinishing() || isDestroyed()) return;
-
-        currentDialog = new MaterialAlertDialogBuilder(this)
-                .setTitle(getString(R.string.reboot_dialog_title))
-                .setPositiveButton(getString(R.string.dialog_yes), (dialog, which) -> rebootDevice())
-                .setNegativeButton(getString(R.string.dialog_no), (dialog, which) -> finish())
-                .setCancelable(false)
-                .create();
-
-        currentDialog.setCanceledOnTouchOutside(false);
-        currentDialog.show();
-
-        if (currentDialog.getWindow() != null) {
-            currentDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-        }
-    }
-
-    private void rebootDevice() {
-        new Thread(() -> {
-            try {
-                Process su = Runtime.getRuntime().exec("su");
-                DataOutputStream os = new DataOutputStream(su.getOutputStream());
-                os.writeBytes("reboot\n");
-                os.writeBytes("exit\n");
-                os.flush();
-                su.waitFor();
-            } catch (Exception e) {
-                Log.e(TAG, "Erro ao reiniciar dispositivo", e);
-            }
-        }).start();
+        }.start()
     }
 }
