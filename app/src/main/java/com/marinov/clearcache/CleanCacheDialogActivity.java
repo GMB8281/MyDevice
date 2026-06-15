@@ -194,6 +194,9 @@ public class CleanCacheDialogActivity extends AppCompatActivity {
         os.writeBytes("  fi\n");
         os.writeBytes("done\n");
         os.writeBytes("pm trim-caches 9999999999999\n");
+        os.writeBytes("rm -rf /storage/emulated/0/Movies/.thumbnails\n");
+        os.writeBytes("rm -rf /storage/emulated/0/Music/.thumbnails\n");
+        os.writeBytes("rm -rf /storage/emulated/0/Pictures/.thumbnails\n");
         os.writeBytes("exit\n");
         return os;
     }
