@@ -56,4 +56,18 @@
     <string name="notification_reboot_text">Monitoring for scheduled restart</string>
 
     <string name="running_service">Running device maintenance…</string>
+
+    <!-- Battery Protection -->
+    <string name="item_battery_protection">Battery Protection</string>
+    <string name="item_battery_protection_desc">Determine critical battery and shutdown levels</string>
+    <string name="title_battery_protection">Battery Protection</string>
+    <string name="label_weak_battery">Weak battery</string>
+    <string name="label_critical_battery">Critical battery</string>
+    <string name="label_energy_reserve">Energy reserve</string>
+    <string name="notification_channel_battery_name">Battery Protection</string>
+    <string name="notification_battery_service_title">Battery Protection</string>
+    <string name="notification_battery_service_text">Monitoring battery levels</string>
+    <string name="notification_battery_alert_title">Weak battery</string>
+    <string name="notification_battery_alert_text">Charge the device</string>
+    <string name="percent_format">%d%%</string>
 </resources>

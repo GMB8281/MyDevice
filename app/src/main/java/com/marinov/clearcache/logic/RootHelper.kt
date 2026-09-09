@@ -21,6 +21,22 @@ object RootHelper {
         }.start()
     }
 
+    fun shutdownDevice() {
+        Thread {
+            try {
+                val su = Runtime.getRuntime().exec("su")
+                val os = su.outputStream
+                // Tenta o comando moderno, com fallback para o legacy
+                os.write("svc power shutdown || reboot -p\n".toByteArray())
+                os.write("exit\n".toByteArray())
+                os.flush()
+                su.waitFor()
+            } catch (e: Exception) {
+                Log.e(TAG, "Erro ao desligar dispositivo", e)
+            }
+        }.start()
+    }
+
     fun requestRootPermission() {
         Thread {
             try {

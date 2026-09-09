@@ -44,6 +44,9 @@ class MainActivity : AppCompatActivity() {
         setDashboardItem(R.id.btn_power_mode, R.drawable.ic_performance, getString(R.string.item_power_mode), getString(R.string.item_power_mode_desc))
         setDashboardItem(R.id.btn_auto_reboot, R.drawable.ic_reboot, getString(R.string.item_auto_reboot), getString(R.string.item_auto_reboot_desc))
         setDashboardItem(R.id.btn_auto_clean, R.drawable.ic_auto_clean, getString(R.string.item_auto_clean), getString(R.string.item_auto_clean_desc))
+
+        // NOVO ITEM
+        setDashboardItem(R.id.btn_battery_protection, R.drawable.ic_battery_protection, getString(R.string.item_battery_protection), getString(R.string.item_battery_protection_desc))
     }
 
     private fun setDashboardItem(layoutId: Int, iconRes: Int, title: String, subtitle: String) {
@@ -69,6 +72,11 @@ class MainActivity : AppCompatActivity() {
         }
         findViewById<LinearLayout>(R.id.btn_auto_clean).setOnClickListener {
             startActivity(Intent(this, AutoCleanCacheActivity::class.java))
+        }
+
+        // NOVO LISTENER
+        findViewById<LinearLayout>(R.id.btn_battery_protection).setOnClickListener {
+            startActivity(Intent(this, BatteryProtectionActivity::class.java))
         }
     }
 

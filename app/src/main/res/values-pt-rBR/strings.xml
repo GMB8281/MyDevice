@@ -65,4 +65,18 @@
     <string name="notification_reboot_text">Monitorando para reinicialização agendada</string>
 
     <string name="running_service">Executando manutenção do aparelho…</string>
+
+    <!-- Proteção de Bateria -->
+    <string name="item_battery_protection">Proteção da bateria</string>
+    <string name="item_battery_protection_desc">Determine os níveis críticos de bateria e desligamento</string>
+    <string name="title_battery_protection">Proteção da Bateria</string>
+    <string name="label_weak_battery">Bateria fraca</string>
+    <string name="label_critical_battery">Bateria crítica</string>
+    <string name="label_energy_reserve">Reserva de energia</string>
+    <string name="notification_channel_battery_name">Proteção da Bateria</string>
+    <string name="notification_battery_service_title">Proteção da Bateria</string>
+    <string name="notification_battery_service_text">Monitorando níveis de bateria</string>
+    <string name="notification_battery_alert_title">Bateria fraca</string>
+    <string name="notification_battery_alert_text">Carregue o dispositivo</string>
+    <string name="percent_format">%d%%</string>
 </resources>

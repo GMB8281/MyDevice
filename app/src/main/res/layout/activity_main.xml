@@ -50,6 +50,7 @@
             <include layout="@layout/item_dashboard" android:id="@+id/btn_power_mode" />
             <include layout="@layout/item_dashboard" android:id="@+id/btn_auto_reboot" />
             <include layout="@layout/item_dashboard" android:id="@+id/btn_auto_clean" />
+            <include layout="@layout/item_dashboard" android:id="@+id/btn_battery_protection" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

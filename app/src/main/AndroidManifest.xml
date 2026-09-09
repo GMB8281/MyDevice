@@ -36,6 +36,9 @@
         <activity android:name=".ui.AutoCleanCacheActivity" android:exported="false" />
         <activity android:name=".ui.ExcludeAppsActivity" android:configChanges="orientation|screenSize|screenLayout|keyboardHidden" android:exported="false" android:label="Excluir Apps" />
 
+        <!-- NOVA ACTIVITY -->
+        <activity android:name=".ui.BatteryProtectionActivity" android:exported="false" />
+
         <service
             android:name=".ui.quicktiles.QuickTileService"
             android:icon="@drawable/ic_clear_cache"
@@ -61,6 +64,11 @@
 
         <service android:name=".service.AutoCleanCacheService" android:exported="false" android:foregroundServiceType="specialUse">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="Execute root commands for cache cleaning" />
+        </service>
+
+        <!-- NOVO SERVICE -->
+        <service android:name=".service.BatteryProtectionService" android:exported="false" android:foregroundServiceType="specialUse">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="Monitor battery levels and execute shutdown" />
         </service>
 
     </application>

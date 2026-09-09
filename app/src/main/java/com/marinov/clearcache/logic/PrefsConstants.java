@@ -17,4 +17,10 @@ public class PrefsConstants {
     public static final String KEY_AUTO_CLEAN_ENABLED = "auto_clean_enabled";
     public static final String KEY_CLEAN_HOUR = "clean_hour";
     public static final String KEY_CLEAN_MINUTE = "clean_minute";
+
+    // Battery Protection (NOVO)
+    public static final String KEY_BATTERY_PROTECTION_ENABLED = "battery_protection_enabled";
+    public static final String KEY_WEAK_BATTERY = "weak_battery_level";
+    public static final String KEY_CRITICAL_BATTERY = "critical_battery_level";
+    public static final String KEY_ENERGY_RESERVE = "energy_reserve_level";
 }
