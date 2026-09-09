@@ -5,14 +5,11 @@
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="PackageVisibilityPolicy,QueryAllPackagesPermission" />
     <uses-permission android:name="android.permission.BIND_QUICK_SETTINGS_TILE" tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.BROADCAST_CLOSE_SYSTEM_DIALOGS" tools:ignore="ProtectedPermissions" />
-
-    <!-- Permissões Novas -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <!-- Requerido para API 34+ quando o serviço usa acesso root -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <application
@@ -27,20 +24,20 @@
         android:theme="@style/Theme.LimparArquivosTemporários"
         tools:targetApi="31">
 
-        <activity android:name=".MainActivity" android:exported="true" android:theme="@style/Theme.LimparArquivosTemporários">
+        <activity android:name=".ui.MainActivity" android:exported="true" android:theme="@style/Theme.LimparArquivosTemporários">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
-        <activity android:name=".CleanCacheDialogActivity" android:theme="@style/TransparentTheme" android:configChanges="orientation|screenSize|screenLayout|keyboardHidden" android:exported="false" />
-        <activity android:name=".RebootActivity" android:exported="false" />
-        <activity android:name=".AutoCleanCacheActivity" android:exported="false" />
-        <activity android:name=".ExcludeAppsActivity" android:configChanges="orientation|screenSize|screenLayout|keyboardHidden" android:exported="false" android:label="Excluir Apps" />
+        <activity android:name=".ui.CleanCacheDialogActivity" android:theme="@style/TransparentTheme" android:configChanges="orientation|screenSize|screenLayout|keyboardHidden" android:exported="false" />
+        <activity android:name=".ui.RebootActivity" android:exported="false" />
+        <activity android:name=".ui.AutoCleanCacheActivity" android:exported="false" />
+        <activity android:name=".ui.ExcludeAppsActivity" android:configChanges="orientation|screenSize|screenLayout|keyboardHidden" android:exported="false" android:label="Excluir Apps" />
 
         <service
-            android:name=".QuickTileService"
+            android:name=".ui.quicktiles.QuickTileService"
             android:icon="@drawable/ic_clear_cache"
             android:label="@string/qs_tile_label"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
@@ -50,20 +47,19 @@
             </intent-filter>
         </service>
 
-        <receiver android:name=".LaunchActivityReceiver" android:exported="false" tools:ignore="ExportedReceiver" />
-        <receiver android:name=".BootReceiver" android:exported="true">
+        <receiver android:name=".receiver.LaunchActivityReceiver" android:exported="false" tools:ignore="ExportedReceiver" />
+        <receiver android:name=".receiver.BootReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
-        <!-- Propriedades mandatórias no Android 14+ (API 34+) para tipo "specialUse" -->
-        <service android:name=".AutoRebootService" android:exported="false" android:foregroundServiceType="specialUse">
+        <service android:name=".service.AutoRebootService" android:exported="false" android:foregroundServiceType="specialUse">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="Execute root commands for device maintenance" />
         </service>
 
-        <service android:name=".AutoCleanCacheService" android:exported="false" android:foregroundServiceType="specialUse">
+        <service android:name=".service.AutoCleanCacheService" android:exported="false" android:foregroundServiceType="specialUse">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="Execute root commands for cache cleaning" />
         </service>
 

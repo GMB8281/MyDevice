@@ -1,4 +1,4 @@
-package com.marinov.clearcache;
+package com.marinov.clearcache.ui;
 
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
@@ -9,14 +9,15 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.marinov.clearcache.R;
+import com.marinov.clearcache.data.AppInfo;
+import com.marinov.clearcache.logic.PrefsConstants;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -24,13 +25,11 @@ import java.util.List;
 import java.util.Set;
 
 public class ExcludeAppsActivity extends AppCompatActivity {
-
     private RecyclerView recyclerView;
     private AppListAdapter adapter;
     private ProgressBar progressBar;
     private ExtendedFloatingActionButton saveButton;
     private EditText searchBar;
-
     private List<AppInfo> allAppsList;
     private List<AppInfo> displayList;
     private SharedPreferences prefs;
@@ -49,11 +48,10 @@ public class ExcludeAppsActivity extends AppCompatActivity {
 
         allAppsList = new ArrayList<>();
         displayList = new ArrayList<>();
-
         adapter = new AppListAdapter(displayList);
         recyclerView.setAdapter(adapter);
 
-        prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+        prefs = getSharedPreferences(PrefsConstants.PREFS_NAME, MODE_PRIVATE);
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -67,7 +65,6 @@ public class ExcludeAppsActivity extends AppCompatActivity {
         });
 
         saveButton.setOnClickListener(v -> savePreferencesAndFinish());
-
         setupSearch();
         setupBackPress();
         loadApps();
@@ -130,7 +127,7 @@ public class ExcludeAppsActivity extends AppCompatActivity {
                 packages = new ArrayList<>();
             }
 
-            Set<String> excluded = prefs.getStringSet("excluded_packages", new HashSet<>());
+            Set<String> excluded = prefs.getStringSet(PrefsConstants.KEY_EXCLUDED_PACKAGES, new HashSet<>());
             List<AppInfo> loadedApps = new ArrayList<>();
 
             for (ApplicationInfo app : packages) {
@@ -148,7 +145,6 @@ public class ExcludeAppsActivity extends AppCompatActivity {
 
             runOnUiThread(() -> {
                 if (isFinishing() || isDestroyed()) return;
-
                 allAppsList.clear();
                 allAppsList.addAll(loadedApps);
                 displayList.clear();
@@ -168,12 +164,10 @@ public class ExcludeAppsActivity extends AppCompatActivity {
                 newExcludedSet.add(app.getPackageName());
             }
         }
-
         prefs.edit()
-                .putStringSet("excluded_packages", newExcludedSet)
-                .putBoolean("exclude_list_configured", true)
+                .putStringSet(PrefsConstants.KEY_EXCLUDED_PACKAGES, newExcludedSet)
+                .putBoolean(PrefsConstants.KEY_EXCLUDE_CONFIGURED, true)
                 .apply();
-
         finish();
     }
 }

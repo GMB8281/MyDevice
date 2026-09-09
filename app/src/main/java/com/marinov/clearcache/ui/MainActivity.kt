@@ -1,4 +1,4 @@
-package com.marinov.clearcache
+package com.marinov.clearcache.ui
 
 import android.Manifest
 import android.content.Intent
@@ -16,16 +16,17 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.marinov.clearcache.R
+import com.marinov.clearcache.logic.AlarmScheduler
+import com.marinov.clearcache.logic.RootHelper
 
 class MainActivity : AppCompatActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        requestRootPermission()
+        RootHelper.requestRootPermission()
         requestBatteryOptimizationAndNotifications()
-
         setupUI()
         setupListeners()
     }
@@ -33,12 +34,10 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updatePowerModeState()
-        // Inicialização Agressiva dos Agendamentos (Item 5)
         AlarmScheduler.scheduleAllAggressively(this)
     }
 
     private fun setupUI() {
-        // Item 3: Populando textos e ícones reais usando Drawables padrão do Android e Strings
         setDashboardItem(R.id.btn_battery, R.drawable.ic_battery, getString(R.string.item_battery), getString(R.string.item_battery_desc))
         setDashboardItem(R.id.btn_storage, R.drawable.ic_storage, getString(R.string.item_storage), getString(R.string.item_storage_desc))
         setDashboardItem(R.id.btn_clean_cache, android.R.drawable.ic_menu_delete, getString(R.string.item_clean_cache), getString(R.string.item_clean_cache_desc))
@@ -59,19 +58,15 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(Settings.ACTION_BATTERY_SAVER_SETTINGS)
             if (intent.resolveActivity(packageManager) != null) startActivity(intent) else startActivity(Intent(Intent.ACTION_POWER_USAGE_SUMMARY))
         }
-
         findViewById<LinearLayout>(R.id.btn_storage).setOnClickListener {
             startActivity(Intent(Settings.ACTION_INTERNAL_STORAGE_SETTINGS))
         }
-
         findViewById<LinearLayout>(R.id.btn_clean_cache).setOnClickListener {
             startActivity(Intent(this, CleanCacheDialogActivity::class.java))
         }
-
         findViewById<LinearLayout>(R.id.btn_auto_reboot).setOnClickListener {
             startActivity(Intent(this, RebootActivity::class.java))
         }
-
         findViewById<LinearLayout>(R.id.btn_auto_clean).setOnClickListener {
             startActivity(Intent(this, AutoCleanCacheActivity::class.java))
         }
@@ -93,7 +88,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Solicita Bateria Irrestrita (Item 7) e Notificações
     private fun requestBatteryOptimizationAndNotifications() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
@@ -103,22 +97,10 @@ class MainActivity : AppCompatActivity() {
                 try { startActivity(intent) } catch (e: Exception) { Log.e("Main", "Erro ao pedir restrição de bateria", e) }
             }
         }
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 101)
             }
         }
-    }
-
-    private fun requestRootPermission() {
-        Thread {
-            try {
-                val process = Runtime.getRuntime().exec("su -c exit")
-                process.waitFor()
-            } catch (e: Exception) {
-                Log.e("MainActivity", "Sem acesso Root", e)
-            }
-        }.start()
     }
 }

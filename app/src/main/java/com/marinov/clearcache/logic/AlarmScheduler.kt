@@ -1,4 +1,4 @@
-package com.marinov.clearcache
+package com.marinov.clearcache.logic
 
 import android.app.AlarmManager
 import android.app.PendingIntent
@@ -7,9 +7,16 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
+import com.marinov.clearcache.service.AutoCleanCacheService
+import com.marinov.clearcache.service.AutoRebootService
 import java.util.Calendar
 
 object AlarmScheduler {
+    private val dayKeys = listOf("sun", "mon", "tue", "wed", "thu", "fri", "sat")
+    private val dayCalendarValues = listOf(
+        Calendar.SUNDAY, Calendar.MONDAY, Calendar.TUESDAY,
+        Calendar.WEDNESDAY, Calendar.THURSDAY, Calendar.FRIDAY, Calendar.SATURDAY
+    )
 
     fun scheduleAllAggressively(context: Context) {
         Log.d("ClearCache", "Iniciando agendamento agressivo de serviços...")
@@ -18,25 +25,16 @@ object AlarmScheduler {
     }
 
     fun scheduleReboot(context: Context) {
-        val prefs = context.getSharedPreferences(CleanCacheDialogActivity.PREFS_NAME, Context.MODE_PRIVATE)
+        val prefs = context.getSharedPreferences(PrefsConstants.PREFS_NAME, Context.MODE_PRIVATE)
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val isEnabled = prefs.getBoolean(PrefsConstants.KEY_AUTO_REBOOT_ENABLED, true)
 
-        val isEnabled = prefs.getBoolean("auto_reboot_enabled", true)
-
-        // Liga ou Desliga o serviço persistente imediatamente ao tocar na chave
         if (isEnabled) {
             ContextCompat.startForegroundService(context, Intent(context, AutoRebootService::class.java))
         } else {
             context.stopService(Intent(context, AutoRebootService::class.java))
         }
 
-        val dayKeys = listOf("sun", "mon", "tue", "wed", "thu", "fri", "sat")
-        val dayCalendarValues = listOf(
-            Calendar.SUNDAY, Calendar.MONDAY, Calendar.TUESDAY,
-            Calendar.WEDNESDAY, Calendar.THURSDAY, Calendar.FRIDAY, Calendar.SATURDAY
-        )
-
-        // Limpa alarmes pendentes
         for (i in dayKeys.indices) {
             val intent = Intent(context, AutoRebootService::class.java).apply {
                 action = "ACTION_EXECUTE_ALARM"
@@ -50,12 +48,11 @@ object AlarmScheduler {
             return
         }
 
-        val hour = prefs.getInt("reboot_hour", 3)
-        val minute = prefs.getInt("reboot_minute", 0)
+        val hour = prefs.getInt(PrefsConstants.KEY_REBOOT_HOUR, 3)
+        val minute = prefs.getInt(PrefsConstants.KEY_REBOOT_MINUTE, 0)
 
         for (i in dayKeys.indices) {
-            val isDayEnabled = prefs.getBoolean("reboot_day_${dayKeys[i]}", i == 1)
-
+            val isDayEnabled = prefs.getBoolean("${PrefsConstants.KEY_REBOOT_DAY_PREFIX}${dayKeys[i]}", i == 1)
             if (isDayEnabled) {
                 val calendar = Calendar.getInstance().apply {
                     timeInMillis = System.currentTimeMillis()
@@ -63,17 +60,14 @@ object AlarmScheduler {
                     set(Calendar.HOUR_OF_DAY, hour)
                     set(Calendar.MINUTE, minute)
                     set(Calendar.SECOND, 0)
-
                     if (timeInMillis <= System.currentTimeMillis()) {
                         add(Calendar.WEEK_OF_YEAR, 1)
                     }
                 }
-
                 val intent = Intent(context, AutoRebootService::class.java).apply {
                     action = "ACTION_EXECUTE_ALARM"
                 }
                 val pendingIntent = getForegroundPendingIntent(context, i, intent)
-
                 try {
                     alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
                 } catch (e: SecurityException) {
@@ -84,12 +78,10 @@ object AlarmScheduler {
     }
 
     fun scheduleClean(context: Context) {
-        val prefs = context.getSharedPreferences(CleanCacheDialogActivity.PREFS_NAME, Context.MODE_PRIVATE)
+        val prefs = context.getSharedPreferences(PrefsConstants.PREFS_NAME, Context.MODE_PRIVATE)
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val isEnabled = prefs.getBoolean(PrefsConstants.KEY_AUTO_CLEAN_ENABLED, true)
 
-        val isEnabled = prefs.getBoolean("auto_clean_enabled", true)
-
-        // Liga ou Desliga o serviço persistente imediatamente
         if (isEnabled) {
             ContextCompat.startForegroundService(context, Intent(context, AutoCleanCacheService::class.java))
         } else {
@@ -100,7 +92,6 @@ object AlarmScheduler {
             action = "ACTION_EXECUTE_ALARM"
         }
         val pendingIntent = getForegroundPendingIntent(context, 100, intent)
-
         alarmManager.cancel(pendingIntent)
 
         if (!isEnabled) {
@@ -108,15 +99,14 @@ object AlarmScheduler {
             return
         }
 
-        val hour = prefs.getInt("clean_hour", 3)
-        val minute = prefs.getInt("clean_minute", 0)
+        val hour = prefs.getInt(PrefsConstants.KEY_CLEAN_HOUR, 3)
+        val minute = prefs.getInt(PrefsConstants.KEY_CLEAN_MINUTE, 0)
 
         val calendar = Calendar.getInstance().apply {
             timeInMillis = System.currentTimeMillis()
             set(Calendar.HOUR_OF_DAY, hour)
             set(Calendar.MINUTE, minute)
             set(Calendar.SECOND, 0)
-
             if (timeInMillis <= System.currentTimeMillis()) {
                 add(Calendar.DAY_OF_YEAR, 1)
             }

@@ -1,4 +1,4 @@
-package com.marinov.clearcache
+package com.marinov.clearcache.service
 
 import android.app.KeyguardManager
 import android.app.NotificationChannel
@@ -12,9 +12,11 @@ import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.marinov.clearcache.R
+import com.marinov.clearcache.logic.CacheCleaner
+import com.marinov.clearcache.logic.PrefsConstants
 
 class AutoCleanCacheService : Service() {
-
     override fun onCreate() {
         super.onCreate()
         startPersistentNotification()
@@ -36,7 +38,7 @@ class AutoCleanCacheService : Service() {
             .setContentTitle(getString(R.string.notification_clean_title))
             .setContentText(getString(R.string.notification_clean_text))
             .setSmallIcon(android.R.drawable.ic_popup_sync)
-            .setOngoing(true) // Impede que o usuário limpe a notificação
+            .setOngoing(true)
             .build()
 
         try {
@@ -53,29 +55,24 @@ class AutoCleanCacheService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d("ClearCache", "Serviço AutoClean ativo e monitorando...")
 
-        // Só executa a ação de fato se vier com o gatilho do AlarmManager
         if (intent?.action == "ACTION_EXECUTE_ALARM") {
-            val prefs = getSharedPreferences(CleanCacheDialogActivity.PREFS_NAME, Context.MODE_PRIVATE)
-            val isConfigured = prefs.getBoolean(CleanCacheDialogActivity.KEY_EXCLUDE_CONFIGURED, false)
+            val prefs = getSharedPreferences(PrefsConstants.PREFS_NAME, Context.MODE_PRIVATE)
+            val isConfigured = prefs.getBoolean(PrefsConstants.KEY_EXCLUDE_CONFIGURED, false)
 
             val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
             val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-
             val isScreenOff = !powerManager.isInteractive
             val isLocked = keyguardManager.isDeviceLocked
 
-            // Restrição rígida de tela: só acontece se estiver apagada OU bloqueada.
             val canExecute = (isScreenOff || isLocked) && isConfigured
 
             if (canExecute) {
                 Log.d("AutoClean", "Iniciando limpeza silenciosa: Condições de tela atendidas.")
-                CleanCacheDialogActivity.executeCleanCacheSilent(this@AutoCleanCacheService)
+                CacheCleaner.executeCleanCacheSilent(this@AutoCleanCacheService)
             } else {
                 Log.d("AutoClean", "Limpeza ignorada: Tela ligada e desbloqueada ou exceções não configuradas.")
             }
         }
-
-        // Mantém o serviço VIVO eternamente (persistente)
         return START_STICKY
     }
 

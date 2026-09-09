@@ -1,4 +1,4 @@
-package com.marinov.clearcache;
+package com.marinov.clearcache.ui;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -6,15 +6,13 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
+import com.marinov.clearcache.R;
+import com.marinov.clearcache.data.AppInfo;
 import java.util.List;
 
 public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewHolder> {
-
-    // Removemos o 'final' ou garantimos que a lista interna seja mutável para suportar filtragem
     private final List<AppInfo> appList;
 
     public AppListAdapter(List<AppInfo> appList) {
@@ -32,19 +30,13 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
     @Override
     public void onBindViewHolder(@NonNull AppViewHolder holder, int position) {
         AppInfo appInfo = appList.get(position);
-
         holder.appName.setText(appInfo.getAppName());
         holder.appIcon.setImageDrawable(appInfo.getIcon());
         holder.appPackage.setText(appInfo.getPackageName());
 
-        // Define o estado do checkbox sem disparar o listener
         holder.appCheckbox.setOnCheckedChangeListener(null);
         holder.appCheckbox.setChecked(appInfo.isChecked());
-
-        // Adiciona o listener de volta
         holder.appCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> appInfo.setChecked(isChecked));
-
-        // Permite clicar em qualquer lugar do item da lista para marcar/desmarcar
         holder.itemView.setOnClickListener(v -> holder.appCheckbox.setChecked(!holder.appCheckbox.isChecked()));
     }
 

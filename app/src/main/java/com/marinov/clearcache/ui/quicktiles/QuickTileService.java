@@ -1,4 +1,4 @@
-package com.marinov.clearcache;
+package com.marinov.clearcache.ui.quicktiles;
 
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -6,20 +6,17 @@ import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
+import com.marinov.clearcache.R;
+import com.marinov.clearcache.ui.CleanCacheDialogActivity;
 
 public class QuickTileService extends TileService {
-
     @Override
     public void onClick() {
         super.onClick();
-
-        // APONTANDO PARA A NOVA ACTIVITY DE LIMPEZA
         Intent intent = new Intent(this, CleanCacheDialogActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        final int FLAG_ALLOW_BAL =
-                (Build.VERSION.SDK_INT >= 35) ? 0x40000000 : 0x40000000;
-
+        final int FLAG_ALLOW_BAL = (Build.VERSION.SDK_INT >= 35) ? 0x40000000 : 0x40000000;
         int flags = PendingIntent.FLAG_UPDATE_CURRENT
                 | PendingIntent.FLAG_IMMUTABLE
                 | FLAG_ALLOW_BAL;
