@@ -18,9 +18,20 @@ import com.marinov.clearcache.logic.PrefsConstants
 import com.marinov.clearcache.logic.RootHelper
 
 class BatteryProtectionService : Service() {
-
     private val batteryReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
+            val status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
+            val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                    status == BatteryManager.BATTERY_STATUS_FULL
+
+            // Se estiver carregando, limpa a notificação e reseta as flags
+            if (isCharging) {
+                clearWarningNotification()
+                hasNotifiedWeak = false
+                hasNotifiedCritical = false
+                return
+            }
+
             val level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
             val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
             if (level >= 0 && scale > 0) {
@@ -98,6 +109,8 @@ class BatteryProtectionService : Service() {
         } else {
             hasNotifiedWeak = false
             hasNotifiedCritical = false
+            // Garante que a notificação suma caso a bateria suba acima do nível fraco
+            clearWarningNotification()
         }
     }
 
@@ -121,6 +134,11 @@ class BatteryProtectionService : Service() {
 
         val manager2 = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         manager2.notify(1004, notification)
+    }
+
+    private fun clearWarningNotification() {
+        val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        manager.cancel(1004) // 1004 é o ID da notificação de alerta
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
