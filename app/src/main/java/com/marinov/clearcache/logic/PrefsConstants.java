@@ -12,11 +12,16 @@ public class PrefsConstants {
     public static final String KEY_REBOOT_HOUR = "reboot_hour";
     public static final String KEY_REBOOT_MINUTE = "reboot_minute";
     public static final String KEY_REBOOT_DAY_PREFIX = "reboot_day_";
+    public static final String KEY_REBOOT_SCHEDULE_TYPE = "reboot_schedule_type";   // daily | weekly | monthly
+    public static final String KEY_REBOOT_DAY_OF_MONTH = "reboot_day_of_month";     // 1..31
 
     // Auto Clean
     public static final String KEY_AUTO_CLEAN_ENABLED = "auto_clean_enabled";
     public static final String KEY_CLEAN_HOUR = "clean_hour";
     public static final String KEY_CLEAN_MINUTE = "clean_minute";
+    public static final String KEY_CLEAN_DAY_PREFIX = "clean_day_";
+    public static final String KEY_CLEAN_SCHEDULE_TYPE = "clean_schedule_type";     // daily | weekly | monthly
+    public static final String KEY_CLEAN_DAY_OF_MONTH = "clean_day_of_month";       // 1..31
 
     // Battery Protection (NOVO)
     public static final String KEY_BATTERY_PROTECTION_ENABLED = "battery_protection_enabled";

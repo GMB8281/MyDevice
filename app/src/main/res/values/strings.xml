@@ -35,7 +35,7 @@
     <string name="item_auto_reboot">Auto Reboot</string>
     <string name="item_auto_reboot_desc">Schedule device restart</string>
     <string name="item_auto_clean">Auto Cache Cleanup</string>
-    <string name="item_auto_clean_desc">Schedule daily background cleanup</string>
+    <string name="item_auto_clean_desc">Schedule automatic background cleanup</string>
 
     <string name="title_auto_reboot">Auto Reboot</string>
     <string name="title_auto_clean">Auto Cleanup</string>
@@ -43,6 +43,14 @@
     <string name="status_enabled">Enabled</string>
     <string name="status_disabled">Disabled</string>
     <string name="days_of_week">Days of the week</string>
+
+    <!-- Schedule type -->
+    <string name="schedule_repeat">Repeat</string>
+    <string name="schedule_daily">Daily</string>
+    <string name="schedule_weekly">Weekly</string>
+    <string name="schedule_monthly">Monthly</string>
+    <string name="day_of_month">Day of the month</string>
+    <string name="monthly_short_month_hint">In shorter months, it runs on the last day of the month.</string>
 
     <string name="search_bar">Search for an app…</string>
     <string name="app_icon_content_description">App Icon</string>

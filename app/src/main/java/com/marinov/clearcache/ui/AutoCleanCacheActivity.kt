@@ -11,12 +11,14 @@ import com.google.android.material.materialswitch.MaterialSwitch
 import com.marinov.clearcache.R
 import com.marinov.clearcache.logic.AlarmScheduler
 import com.marinov.clearcache.logic.PrefsConstants
+import com.marinov.clearcache.logic.ScheduleType
 
 class AutoCleanCacheActivity : AppCompatActivity() {
     private lateinit var prefs: SharedPreferences
     private lateinit var switchClean: MaterialSwitch
     private lateinit var textSwitchState: TextView
     private lateinit var timePicker: TimePicker
+    private lateinit var scheduleSection: ScheduleSection
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,11 +34,27 @@ class AutoCleanCacheActivity : AppCompatActivity() {
         timePicker = findViewById(R.id.time_picker)
         timePicker.setIs24HourView(true)
 
+        // Padrão Diário: mantém o comportamento de quem já usava a limpeza automática
+        scheduleSection = ScheduleSection(
+            activity = this,
+            prefs = prefs,
+            config = ScheduleSection.Config(
+                typeKey = PrefsConstants.KEY_CLEAN_SCHEDULE_TYPE,
+                defaultType = ScheduleType.DAILY,
+                dayPrefix = PrefsConstants.KEY_CLEAN_DAY_PREFIX,
+                dayOfMonthKey = PrefsConstants.KEY_CLEAN_DAY_OF_MONTH
+            ),
+            onChanged = { if (switchClean.isChecked) AlarmScheduler.scheduleClean(this) },
+            onNoDaySelected = { switchClean.isChecked = false }
+        )
+
         loadPreferences()
 
         switchClean.setOnCheckedChangeListener { _, isChecked ->
             updateUiState(isChecked)
             prefs.edit().putBoolean(PrefsConstants.KEY_AUTO_CLEAN_ENABLED, isChecked).apply()
+
+            if (isChecked) scheduleSection.ensureDayForWeekly()
             AlarmScheduler.scheduleClean(this)
         }
 
@@ -54,16 +72,14 @@ class AutoCleanCacheActivity : AppCompatActivity() {
         switchClean.isChecked = isEnabled
         updateUiState(isEnabled)
 
-        val hour = prefs.getInt(PrefsConstants.KEY_CLEAN_HOUR, 3)
-        val minute = prefs.getInt(PrefsConstants.KEY_CLEAN_MINUTE, 0)
-        timePicker.hour = hour
-        timePicker.minute = minute
+        timePicker.hour = prefs.getInt(PrefsConstants.KEY_CLEAN_HOUR, 3)
+        timePicker.minute = prefs.getInt(PrefsConstants.KEY_CLEAN_MINUTE, 0)
     }
 
     private fun updateUiState(isEnabled: Boolean) {
         textSwitchState.text = if (isEnabled) getString(R.string.status_enabled) else getString(R.string.status_disabled)
-        val alphaValue = if (isEnabled) 1.0f else 0.4f
         timePicker.isEnabled = isEnabled
-        timePicker.alpha = alphaValue
+        timePicker.alpha = if (isEnabled) 1.0f else 0.4f
+        scheduleSection.setEnabledState(isEnabled)
     }
 }

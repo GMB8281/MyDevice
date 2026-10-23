@@ -48,6 +48,11 @@
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
+            <include
+                layout="@layout/layout_schedule_options"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
             <TimePicker
                 android:id="@+id/time_picker"
                 android:layout_width="wrap_content"

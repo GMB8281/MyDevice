@@ -48,30 +48,10 @@
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/text_days_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/days_of_week"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="16dp"
-                android:textColor="?android:attr/textColorSecondary"/>
-
-            <LinearLayout
-                android:id="@+id/container_days"
+            <include
+                layout="@layout/layout_schedule_options"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_horizontal"
-                android:weightSum="7">
-                <ToggleButton android:id="@+id/btn_sun" style="@style/DayToggle" android:textOn="D" android:textOff="D" />
-                <ToggleButton android:id="@+id/btn_mon" style="@style/DayToggle" android:textOn="S" android:textOff="S" />
-                <ToggleButton android:id="@+id/btn_tue" style="@style/DayToggle" android:textOn="T" android:textOff="T" />
-                <ToggleButton android:id="@+id/btn_wed" style="@style/DayToggle" android:textOn="Q" android:textOff="Q" />
-                <ToggleButton android:id="@+id/btn_thu" style="@style/DayToggle" android:textOn="Q" android:textOff="Q" />
-                <ToggleButton android:id="@+id/btn_fri" style="@style/DayToggle" android:textOn="S" android:textOff="S" />
-                <ToggleButton android:id="@+id/btn_sat" style="@style/DayToggle" android:textOn="S" android:textOff="S" />
-            </LinearLayout>
+                android:layout_height="wrap_content" />
 
             <TimePicker
                 android:id="@+id/time_picker"

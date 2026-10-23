@@ -13,7 +13,9 @@ import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.marinov.clearcache.R
+import com.marinov.clearcache.logic.AlarmScheduler
 import com.marinov.clearcache.logic.CacheCleaner
+import com.marinov.clearcache.logic.DeviceActivityChecker
 import com.marinov.clearcache.logic.PrefsConstants
 
 class AutoCleanCacheService : Service() {
@@ -55,25 +57,46 @@ class AutoCleanCacheService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d("ClearCache", "Serviço AutoClean ativo e monitorando...")
 
-        if (intent?.action == "ACTION_EXECUTE_ALARM") {
-            val prefs = getSharedPreferences(PrefsConstants.PREFS_NAME, Context.MODE_PRIVATE)
-            val isConfigured = prefs.getBoolean(PrefsConstants.KEY_EXCLUDE_CONFIGURED, false)
-
-            val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
-            val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-            val isScreenOff = !powerManager.isInteractive
-            val isLocked = keyguardManager.isDeviceLocked
-
-            val canExecute = (isScreenOff || isLocked) && isConfigured
-
-            if (canExecute) {
-                Log.d("AutoClean", "Iniciando limpeza silenciosa: Condições de tela atendidas.")
-                CacheCleaner.executeCleanCacheSilent(this@AutoCleanCacheService)
-            } else {
-                Log.d("AutoClean", "Limpeza ignorada: Tela ligada e desbloqueada ou exceções não configuradas.")
-            }
+        if (intent?.action == AlarmScheduler.ACTION_EXECUTE_ALARM) {
+            // Alarmes exatos são de disparo único: arma o próximo ANTES de qualquer verificação,
+            // para que um adiamento (ligação, mídia, tela em uso) não perca o agendamento.
+            AlarmScheduler.scheduleNextClean(this)
+            runScheduledClean()
         }
         return START_STICKY
+    }
+
+    private fun runScheduledClean() {
+        val prefs = getSharedPreferences(PrefsConstants.PREFS_NAME, Context.MODE_PRIVATE)
+        val isConfigured = prefs.getBoolean(PrefsConstants.KEY_EXCLUDE_CONFIGURED, false)
+
+        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+        val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+        val isScreenOff = !powerManager.isInteractive
+        val isLocked = keyguardManager.isDeviceLocked
+
+        if (!isConfigured) {
+            Log.d("AutoClean", "Limpeza ignorada: exceções não configuradas.")
+            return
+        }
+
+        if (!(isScreenOff || isLocked)) {
+            Log.d("AutoClean", "Limpeza ignorada: tela ligada e desbloqueada.")
+            return
+        }
+
+        if (DeviceActivityChecker.isInCall(this)) {
+            Log.d("AutoClean", "Limpeza ignorada: usuário em ligação.")
+            return
+        }
+
+        if (DeviceActivityChecker.isMediaPlaying(this)) {
+            Log.d("AutoClean", "Limpeza ignorada: mídia sendo reproduzida.")
+            return
+        }
+
+        Log.d("AutoClean", "Iniciando limpeza silenciosa: todas as condições atendidas.")
+        CacheCleaner.executeCleanCacheSilent(this)
     }
 
     override fun onBind(intent: Intent?): IBinder? = null

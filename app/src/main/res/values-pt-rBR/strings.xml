@@ -41,7 +41,7 @@
     <string name="item_auto_reboot">Reboot Automático</string>
     <string name="item_auto_reboot_desc">Agendar reinicialização do dispositivo</string>
     <string name="item_auto_clean">Limpeza Automática de Cache</string>
-    <string name="item_auto_clean_desc">Agendar limpeza diária em segundo plano</string>
+    <string name="item_auto_clean_desc">Agendar limpeza automática em segundo plano</string>
 
     <!-- Activities Titles -->
     <string name="title_auto_reboot">Reboot Automático</string>
@@ -51,6 +51,14 @@
     <string name="status_enabled">Ativado</string>
     <string name="status_disabled">Desativado</string>
     <string name="days_of_week">Dias da semana</string>
+
+    <!-- Tipo de agendamento -->
+    <string name="schedule_repeat">Repetir</string>
+    <string name="schedule_daily">Diário</string>
+    <string name="schedule_weekly">Semanal</string>
+    <string name="schedule_monthly">Mensal</string>
+    <string name="day_of_month">Dia do mês</string>
+    <string name="monthly_short_month_hint">Em meses mais curtos, executa no último dia do mês.</string>
 
     <string name="search_bar">Search for an app…</string>
     <string name="app_icon_content_description">App Icon</string>

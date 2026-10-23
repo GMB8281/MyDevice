@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/container_schedule"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- Periodicidade: Diário / Semanal / Mensal -->
+    <TextView
+        android:id="@+id/text_repeat_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="12dp"
+        android:text="@string/schedule_repeat"
+        android:textColor="?android:attr/textColorSecondary" />
+
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/toggle_schedule_type"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:selectionRequired="true"
+        app:singleSelection="true">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_type_daily"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/schedule_daily" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_type_weekly"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/schedule_weekly" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_type_monthly"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/schedule_monthly" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <!-- Semanal: dias da semana -->
+    <LinearLayout
+        android:id="@+id/container_weekly"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/text_days_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/days_of_week"
+            android:textColor="?android:attr/textColorSecondary" />
+
+        <LinearLayout
+            android:id="@+id/container_days"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal"
+            android:weightSum="7">
+
+            <ToggleButton android:id="@+id/btn_sun" style="@style/DayToggle" android:textOn="D" android:textOff="D" />
+            <ToggleButton android:id="@+id/btn_mon" style="@style/DayToggle" android:textOn="S" android:textOff="S" />
+            <ToggleButton android:id="@+id/btn_tue" style="@style/DayToggle" android:textOn="T" android:textOff="T" />
+            <ToggleButton android:id="@+id/btn_wed" style="@style/DayToggle" android:textOn="Q" android:textOff="Q" />
+            <ToggleButton android:id="@+id/btn_thu" style="@style/DayToggle" android:textOn="Q" android:textOff="Q" />
+            <ToggleButton android:id="@+id/btn_fri" style="@style/DayToggle" android:textOn="S" android:textOff="S" />
+            <ToggleButton android:id="@+id/btn_sat" style="@style/DayToggle" android:textOn="S" android:textOff="S" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Mensal: dia do mês -->
+    <LinearLayout
+        android:id="@+id/container_monthly"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/text_day_of_month_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/day_of_month"
+            android:textColor="?android:attr/textColorSecondary" />
+
+        <NumberPicker
+            android:id="@+id/picker_day_of_month"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal" />
+
+        <TextView
+            android:id="@+id/text_monthly_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_horizontal"
+            android:text="@string/monthly_short_month_hint"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="12sp" />
+    </LinearLayout>
+</LinearLayout>
