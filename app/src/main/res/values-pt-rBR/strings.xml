@@ -33,7 +33,7 @@
     <string name="item_always_on">Apps sempre ativos</string>
     <string name="item_always_on_desc">Selecione apps que nunca devem ser fechados em segundo plano.</string>
     <string name="always_on_title">Apps sempre ativos</string>
-    <string name="always_on_subtitle">Os apps marcados ficam isentos da otimização de bateria e nunca são fechados em segundo plano. As alterações são aplicadas na hora.</string>
+    <string name="always_on_subtitle">Os apps marcados ficam isentos da otimização de bateria e nunca são fechados em segundo plano.</string>
     <string name="always_on_apply_error">Não foi possível aplicar as configurações de bateria. Acesso root negado.</string>
     <string name="always_on_system_app_error">Este app é protegido pelo sistema e não pode ser alterado.</string>
 

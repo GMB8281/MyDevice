@@ -28,7 +28,7 @@
     <string name="item_always_on">Always-on apps</string>
     <string name="item_always_on_desc">Select apps that should never be closed when running in the background.</string>
     <string name="always_on_title">Always-on apps</string>
-    <string name="always_on_subtitle">Checked apps are exempted from battery optimization and never closed in the background. Changes are applied instantly.</string>
+    <string name="always_on_subtitle">Checked apps are exempted from battery optimization and never closed in the background.</string>
     <string name="always_on_apply_error">Could not apply battery settings. Root access denied.</string>
     <string name="always_on_system_app_error">This app is protected by the system and cannot be changed.</string>
 

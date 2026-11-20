@@ -1,20 +1,9 @@
-<!--
-  ~ Copyright (C) 2026 The Android Open Source Project
-  ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~      http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  -->
-<vector xmlns:android="http://schemas.android.com/apk/res/android" android:height="24dp" android:tint="#000000" android:viewportHeight="24" android:viewportWidth="24" android:width="24dp">
-        
-    <path android:fillColor="#FF000000" android:pathData="M17.6,11.48 L19.44,8.3a0.63,0.63 0,0 0,-1.09 -0.63l-1.88,3.24a11.43,11.43 0,0 0,-8.94 0L5.65,7.67a0.63,0.63 0,0 0,-1.09 0.63L6.4,11.48A10.81,10.81 0,0 0,1 20L23,20A10.81,10.81 0,0 0,17.6 11.48ZM7,17.25A1.25,1.25 0,1 1,8.25 16,1.25 1.25,0 0,1 7,17.25ZM17,17.25A1.25,1.25 0,1 1,18.25 16,1.25 1.25,0 0,1 17,17.25Z"/>
-    
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="18dp"
+    android:height="18dp"
+    android:viewportWidth="43.2"
+    android:viewportHeight="43.2">
+  <path
+      android:pathData="M4.1,33.6q-1.88,0 -3.19,-1.31T-0.4,29.1v-15q0,-1.88 1.31,-3.19T4.1,9.6h31q1.88,0 3.19,1.31T39.6,14.1v15q0,1.88 -1.31,3.19T35.1,33.6L4.1,33.6ZM4.1,30.6h31q0.64,0 1.07,-0.43T36.6,29.1v-15q0,-0.64 -0.43,-1.07T35.1,12.6L4.1,12.6q-0.64,0 -1.07,0.43T2.6,14.1v15q0,0.64 0.43,1.07T4.1,30.6ZM41.1,26.25v-9.3h1q0.6,0 1.05,0.45T43.6,18.45v6.3q0,0.6 -0.45,1.05T42.1,26.25h-1ZM4.1,29.1v-15h31v15L4.1,29.1Z"
+      android:fillColor="#e3e3e3"/>
 </vector>
