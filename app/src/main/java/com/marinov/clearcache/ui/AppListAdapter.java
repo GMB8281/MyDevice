@@ -6,17 +6,32 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.marinov.clearcache.R;
 import com.marinov.clearcache.data.AppInfo;
+
 import java.util.List;
 
 public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewHolder> {
+
+    /** Callback opcional disparado a cada alteração de checkbox (auto-save). */
+    public interface OnAppToggleListener {
+        void onAppToggle(AppInfo appInfo, boolean isChecked);
+    }
+
     private final List<AppInfo> appList;
+    private final OnAppToggleListener toggleListener;
 
     public AppListAdapter(List<AppInfo> appList) {
+        this(appList, null);
+    }
+
+    public AppListAdapter(List<AppInfo> appList, OnAppToggleListener toggleListener) {
         this.appList = appList;
+        this.toggleListener = toggleListener;
     }
 
     @NonNull
@@ -30,14 +45,33 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
     @Override
     public void onBindViewHolder(@NonNull AppViewHolder holder, int position) {
         AppInfo appInfo = appList.get(position);
+        boolean locked = appInfo.isLocked();
+
         holder.appName.setText(appInfo.getAppName());
         holder.appIcon.setImageDrawable(appInfo.getIcon());
         holder.appPackage.setText(appInfo.getPackageName());
 
         holder.appCheckbox.setOnCheckedChangeListener(null);
         holder.appCheckbox.setChecked(appInfo.isChecked());
-        holder.appCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> appInfo.setChecked(isChecked));
-        holder.itemView.setOnClickListener(v -> holder.appCheckbox.setChecked(!holder.appCheckbox.isChecked()));
+        holder.appCheckbox.setEnabled(!locked);
+        if (!locked) {
+            holder.appCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                appInfo.setChecked(isChecked);
+                if (toggleListener != null) {
+                    toggleListener.onAppToggle(appInfo, isChecked);
+                }
+            });
+        }
+
+        // Apps bloqueados: visual "meio cinza" e sem interação
+        holder.itemView.setAlpha(locked ? 0.5f : 1.0f);
+        holder.itemView.setEnabled(!locked);
+        holder.itemView.setClickable(!locked);
+        if (locked) {
+            holder.itemView.setOnClickListener(null);
+        } else {
+            holder.itemView.setOnClickListener(v -> holder.appCheckbox.setChecked(!holder.appCheckbox.isChecked()));
+        }
     }
 
     @Override

@@ -1,35 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- App and Tile -->
+    <!-- App e Tile -->
     <string name="app_name">MeuDispositivo</string>
     <string name="qs_tile_label">Limpar Cache</string>
     <string name="cleaning_cache">Limpando cache…</string>
 
-    <!-- Exclude Setup Dialog (First Run) -->
+    <!-- Diálogo de configuração de exclusões (primeira execução) -->
     <string name="exclude_dialog_title">Configurar Exclusões?</string>
     <string name="exclude_dialog_message">Deseja selecionar aplicativos para não serem fechados durante a limpeza?</string>
     <string name="exclude_dialog_positive_button">Sim, escolher</string>
     <string name="exclude_dialog_negative_button">Não, limpar tudo</string>
 
-    <!-- Main Confirmation Dialog -->
+    <!-- Diálogo principal de confirmação -->
     <string name="confirm_dialog_title">Limpar arquivos temporários? (cache)</string>
     <string name="confirm_dialog_message">Todos os aplicativos do dispositivo serão encerrados.</string>
     <string name="dialog_yes">Sim</string>
     <string name="dialog_no">Não</string>
     <string name="edit_ignored_apps">Editar apps ignorados</string>
 
-    <!-- Status Dialogs -->
+    <!-- Diálogos de status -->
     <string name="root_denied_dialog_title">Erro</string>
     <string name="root_denied_dialog_message">Acesso Root negado.</string>
     <string name="dialog_ok">OK</string>
     <string name="reboot_dialog_title">Reiniciar dispositivo?</string>
 
-    <!-- Exclude Apps Activity -->
+    <!-- Tela de exclusão de apps -->
     <string name="exclude_apps_title">Excluir da Limpeza</string>
     <string name="exclude_apps_subtitle">Marque os apps que você NÃO quer limpar.</string>
     <string name="exclude_apps_save_button">Salvar e Continuar</string>
 
-    <!-- Dashboard Items -->
+    <!-- Always-on apps -->
+    <string name="item_always_on">Apps sempre ativos</string>
+    <string name="item_always_on_desc">Selecione apps que nunca devem ser fechados em segundo plano.</string>
+    <string name="always_on_title">Apps sempre ativos</string>
+    <string name="always_on_subtitle">Os apps marcados ficam isentos da otimização de bateria e nunca são fechados em segundo plano. As alterações são aplicadas na hora.</string>
+    <string name="always_on_apply_error">Não foi possível aplicar as configurações de bateria. Acesso root negado.</string>
+    <string name="always_on_system_app_error">Este app é protegido pelo sistema e não pode ser alterado.</string>
+
+    <!-- Itens do dashboard -->
     <string name="item_battery">Economia de bateria</string>
     <string name="item_battery_desc">Configurações de economia de energia do Android.</string>
     <string name="item_storage">Armazenamento</string>
@@ -43,11 +51,11 @@
     <string name="item_auto_clean">Limpeza Automática de Cache</string>
     <string name="item_auto_clean_desc">Agendar limpeza automática em segundo plano</string>
 
-    <!-- Activities Titles -->
+    <!-- Títulos das Activities -->
     <string name="title_auto_reboot">Reboot Automático</string>
     <string name="title_auto_clean">Limpeza Automática</string>
 
-    <!-- Toggles and States -->
+    <!-- Toggles e estados -->
     <string name="status_enabled">Ativado</string>
     <string name="status_disabled">Desativado</string>
     <string name="days_of_week">Dias da semana</string>
@@ -60,18 +68,16 @@
     <string name="day_of_month">Dia do mês</string>
     <string name="monthly_short_month_hint">Em meses mais curtos, executa no último dia do mês.</string>
 
-    <string name="search_bar">Search for an app…</string>
-    <string name="app_icon_content_description">App Icon</string>
+    <string name="search_bar">Buscar um app…</string>
+    <string name="app_icon_content_description">Ícone do app</string>
 
-    <!-- Persistent Service Notifications -->
+    <!-- Notificações persistentes dos serviços -->
     <string name="notification_channel_clean_name">Limpeza Automática</string>
     <string name="notification_clean_title">Limpeza Automática</string>
     <string name="notification_clean_text">Monitorando para limpeza agendada de cache</string>
-
     <string name="notification_channel_reboot_name">Reboot Automático</string>
     <string name="notification_reboot_title">Reboot Automático</string>
     <string name="notification_reboot_text">Monitorando para reinicialização agendada</string>
-
     <string name="running_service">Executando manutenção do aparelho…</string>
 
     <!-- Proteção de Bateria -->

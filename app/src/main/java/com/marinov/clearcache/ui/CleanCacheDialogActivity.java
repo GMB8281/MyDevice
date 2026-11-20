@@ -7,10 +7,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.marinov.clearcache.R;
@@ -23,6 +25,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class CleanCacheDialogActivity extends AppCompatActivity {
+
     private static final String TAG = CleanCacheDialogActivity.class.getSimpleName();
 
     private ActivityResultLauncher<Intent> mExcludeAppsLauncher;
@@ -33,7 +36,6 @@ public class CleanCacheDialogActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-
         prefs = getSharedPreferences(PrefsConstants.PREFS_NAME, MODE_PRIVATE);
 
         mExcludeAppsLauncher = registerForActivityResult(
@@ -62,7 +64,6 @@ public class CleanCacheDialogActivity extends AppCompatActivity {
     private void showExcludeAppsDialog() {
         if (isFinishing() || isDestroyed()) return;
         if (currentDialog != null && currentDialog.isShowing()) currentDialog.dismiss();
-
         currentDialog = new MaterialAlertDialogBuilder(this)
                 .setTitle(getString(R.string.exclude_dialog_title))
                 .setMessage(getString(R.string.exclude_dialog_message))
@@ -83,7 +84,6 @@ public class CleanCacheDialogActivity extends AppCompatActivity {
     private void showConfirmationDialog() {
         if (isFinishing() || isDestroyed()) return;
         if (currentDialog != null && currentDialog.isShowing()) currentDialog.dismiss();
-
         currentDialog = new MaterialAlertDialogBuilder(this)
                 .setTitle(getString(R.string.confirm_dialog_title))
                 .setMessage(getString(R.string.confirm_dialog_message))
@@ -107,7 +107,6 @@ public class CleanCacheDialogActivity extends AppCompatActivity {
         }
 
         if (currentDialog != null && currentDialog.isShowing()) currentDialog.dismiss();
-
         currentDialog = new MaterialAlertDialogBuilder(this)
                 .setView(progressView)
                 .setCancelable(false)
@@ -125,7 +124,7 @@ public class CleanCacheDialogActivity extends AppCompatActivity {
             try {
                 Process su = Runtime.getRuntime().exec("su");
                 Set<String> excludedPackages = prefs.getStringSet(PrefsConstants.KEY_EXCLUDED_PACKAGES, new HashSet<>());
-                DataOutputStream os = CacheCleaner.getDataOutputStream(su, excludedPackages);
+                DataOutputStream os = CacheCleaner.getDataOutputStream(getApplicationContext(), su, excludedPackages);
                 os.flush();
                 exitCode = su.waitFor();
             } catch (Exception e) {
@@ -167,7 +166,6 @@ public class CleanCacheDialogActivity extends AppCompatActivity {
                 .create();
         currentDialog.setCanceledOnTouchOutside(false);
         currentDialog.show();
-
         if (currentDialog.getWindow() != null) {
             currentDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         }

@@ -24,6 +24,14 @@
     <string name="exclude_apps_subtitle">Check the apps you DO NOT want to clear.</string>
     <string name="exclude_apps_save_button">Save and Continue</string>
 
+    <!-- Always-on apps -->
+    <string name="item_always_on">Always-on apps</string>
+    <string name="item_always_on_desc">Select apps that should never be closed when running in the background.</string>
+    <string name="always_on_title">Always-on apps</string>
+    <string name="always_on_subtitle">Checked apps are exempted from battery optimization and never closed in the background. Changes are applied instantly.</string>
+    <string name="always_on_apply_error">Could not apply battery settings. Root access denied.</string>
+    <string name="always_on_system_app_error">This app is protected by the system and cannot be changed.</string>
+
     <string name="item_battery">Battery Saver</string>
     <string name="item_battery_desc">Android power saving settings.</string>
     <string name="item_storage">Storage</string>
@@ -58,11 +66,9 @@
     <string name="notification_channel_clean_name">Auto Cleanup</string>
     <string name="notification_clean_title">Auto Cleanup</string>
     <string name="notification_clean_text">Monitoring for scheduled cache cleanup</string>
-
     <string name="notification_channel_reboot_name">Auto Reboot</string>
     <string name="notification_reboot_title">Auto Reboot</string>
     <string name="notification_reboot_text">Monitoring for scheduled restart</string>
-
     <string name="running_service">Running device maintenance…</string>
 
     <!-- Battery Protection -->

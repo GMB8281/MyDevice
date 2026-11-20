@@ -23,7 +23,7 @@ public class PrefsConstants {
     public static final String KEY_CLEAN_SCHEDULE_TYPE = "clean_schedule_type";     // daily | weekly | monthly
     public static final String KEY_CLEAN_DAY_OF_MONTH = "clean_day_of_month";       // 1..31
 
-    // Battery Protection (NOVO)
+    // Battery Protection
     public static final String KEY_BATTERY_PROTECTION_ENABLED = "battery_protection_enabled";
     public static final String KEY_WEAK_BATTERY = "weak_battery_level";
     public static final String KEY_CRITICAL_BATTERY = "critical_battery_level";

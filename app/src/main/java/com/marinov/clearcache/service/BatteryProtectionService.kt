@@ -18,6 +18,12 @@ import com.marinov.clearcache.logic.PrefsConstants
 import com.marinov.clearcache.logic.RootHelper
 
 class BatteryProtectionService : Service() {
+
+    companion object {
+        // Mesmo teto da UI: bateria fraca no máximo 60%.
+        private const val MAX_WEAK_LEVEL = 60
+    }
+
     private val batteryReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
@@ -85,9 +91,10 @@ class BatteryProtectionService : Service() {
 
     private fun checkBatteryLevel(level: Int) {
         val prefs = getSharedPreferences(PrefsConstants.PREFS_NAME, MODE_PRIVATE)
-        val weak = prefs.getInt(PrefsConstants.KEY_WEAK_BATTERY, 20)
-        val critical = prefs.getInt(PrefsConstants.KEY_CRITICAL_BATTERY, 10)
-        val reserve = prefs.getInt(PrefsConstants.KEY_ENERGY_RESERVE, 5)
+        // Clamp defensivo: prefs antigas podiam ter valores acima do teto atual.
+        val weak = prefs.getInt(PrefsConstants.KEY_WEAK_BATTERY, 20).coerceIn(2, MAX_WEAK_LEVEL)
+        val critical = prefs.getInt(PrefsConstants.KEY_CRITICAL_BATTERY, 10).coerceIn(1, weak - 1)
+        val reserve = prefs.getInt(PrefsConstants.KEY_ENERGY_RESERVE, 5).coerceIn(0, critical - 1)
 
         if (level <= reserve) {
             Log.d("BatteryProtection", "Nível de reserva atingido. Desligando...")

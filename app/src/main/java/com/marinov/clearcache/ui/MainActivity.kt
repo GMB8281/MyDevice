@@ -21,10 +21,10 @@ import com.marinov.clearcache.logic.AlarmScheduler
 import com.marinov.clearcache.logic.RootHelper
 
 class MainActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         RootHelper.requestRootPermission()
         requestBatteryOptimizationAndNotifications()
         setupUI()
@@ -39,13 +39,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupUI() {
         setDashboardItem(R.id.btn_battery, R.drawable.ic_battery, getString(R.string.item_battery), getString(R.string.item_battery_desc))
+        setDashboardItem(R.id.btn_always_on, R.drawable.ic_always_on, getString(R.string.item_always_on), getString(R.string.item_always_on_desc))
         setDashboardItem(R.id.btn_storage, R.drawable.ic_storage, getString(R.string.item_storage), getString(R.string.item_storage_desc))
         setDashboardItem(R.id.btn_clean_cache, android.R.drawable.ic_menu_delete, getString(R.string.item_clean_cache), getString(R.string.item_clean_cache_desc))
         setDashboardItem(R.id.btn_power_mode, R.drawable.ic_performance, getString(R.string.item_power_mode), getString(R.string.item_power_mode_desc))
         setDashboardItem(R.id.btn_auto_reboot, R.drawable.ic_reboot, getString(R.string.item_auto_reboot), getString(R.string.item_auto_reboot_desc))
         setDashboardItem(R.id.btn_auto_clean, R.drawable.ic_auto_clean, getString(R.string.item_auto_clean), getString(R.string.item_auto_clean_desc))
-
-        // NOVO ITEM
         setDashboardItem(R.id.btn_battery_protection, R.drawable.ic_battery_protection, getString(R.string.item_battery_protection), getString(R.string.item_battery_protection_desc))
     }
 
@@ -61,6 +60,9 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(Settings.ACTION_BATTERY_SAVER_SETTINGS)
             if (intent.resolveActivity(packageManager) != null) startActivity(intent) else startActivity(Intent(Intent.ACTION_POWER_USAGE_SUMMARY))
         }
+        findViewById<LinearLayout>(R.id.btn_always_on).setOnClickListener {
+            startActivity(Intent(this, AlwaysOnActivity::class.java))
+        }
         findViewById<LinearLayout>(R.id.btn_storage).setOnClickListener {
             startActivity(Intent(Settings.ACTION_INTERNAL_STORAGE_SETTINGS))
         }
@@ -73,8 +75,6 @@ class MainActivity : AppCompatActivity() {
         findViewById<LinearLayout>(R.id.btn_auto_clean).setOnClickListener {
             startActivity(Intent(this, AutoCleanCacheActivity::class.java))
         }
-
-        // NOVO LISTENER
         findViewById<LinearLayout>(R.id.btn_battery_protection).setOnClickListener {
             startActivity(Intent(this, BatteryProtectionActivity::class.java))
         }
@@ -84,7 +84,6 @@ class MainActivity : AppCompatActivity() {
         val btnPowerMode = findViewById<LinearLayout>(R.id.btn_power_mode)
         val powerAppPackage = "com.marinov.powermanagement"
         val intent = packageManager.getLaunchIntentForPackage(powerAppPackage)
-
         if (intent != null) {
             btnPowerMode.alpha = 1.0f
             btnPowerMode.isEnabled = true

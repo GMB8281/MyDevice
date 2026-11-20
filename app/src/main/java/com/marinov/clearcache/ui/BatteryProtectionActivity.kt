@@ -10,14 +10,21 @@ import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.marinov.clearcache.R
 import com.marinov.clearcache.logic.PrefsConstants
 import com.marinov.clearcache.service.BatteryProtectionService
-import androidx.core.content.edit
 
 class BatteryProtectionActivity : AppCompatActivity() {
+
+    companion object {
+        // Bateria fraca limitada a 60%; a cascata limita crítica e reserva por consequência.
+        private const val MAX_WEAK_LEVEL = 60
+        private const val MAX_CRITICAL_LEVEL = MAX_WEAK_LEVEL - 1   // 59
+        private const val MAX_RESERVE_LEVEL = MAX_CRITICAL_LEVEL - 1 // 58
+    }
 
     private lateinit var prefs: SharedPreferences
     private lateinit var switchProtection: MaterialSwitch
@@ -33,7 +40,6 @@ class BatteryProtectionActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_battery_protection)
-
         prefs = getSharedPreferences(PrefsConstants.PREFS_NAME, MODE_PRIVATE)
 
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
@@ -55,16 +61,21 @@ class BatteryProtectionActivity : AppCompatActivity() {
         switchProtection.isChecked = isEnabled
         updateUiState(isEnabled)
 
-        weakLevel = prefs.getInt(PrefsConstants.KEY_WEAK_BATTERY, 20)
-        criticalLevel = prefs.getInt(PrefsConstants.KEY_CRITICAL_BATTERY, 10)
-        reserveLevel = prefs.getInt(PrefsConstants.KEY_ENERGY_RESERVE, 5)
+        // Clamp: versões antigas podiam ter salvo fraca até 100%.
+        weakLevel = prefs.getInt(PrefsConstants.KEY_WEAK_BATTERY, 20).coerceIn(2, MAX_WEAK_LEVEL)
+        criticalLevel = prefs.getInt(PrefsConstants.KEY_CRITICAL_BATTERY, 10).coerceIn(1, weakLevel - 1)
+        reserveLevel = prefs.getInt(PrefsConstants.KEY_ENERGY_RESERVE, 5).coerceIn(0, criticalLevel - 1)
+        prefs.edit {
+            putInt(PrefsConstants.KEY_WEAK_BATTERY, weakLevel)
+            putInt(PrefsConstants.KEY_CRITICAL_BATTERY, criticalLevel)
+            putInt(PrefsConstants.KEY_ENERGY_RESERVE, reserveLevel)
+        }
     }
 
     private fun setupSwitch() {
         switchProtection.setOnCheckedChangeListener { _, isChecked ->
             updateUiState(isChecked)
-            prefs.edit {putBoolean(PrefsConstants.KEY_BATTERY_PROTECTION_ENABLED, isChecked) }
-
+            prefs.edit { putBoolean(PrefsConstants.KEY_BATTERY_PROTECTION_ENABLED, isChecked) }
             val serviceIntent = Intent(this, BatteryProtectionService::class.java)
             if (isChecked) {
                 ContextCompat.startForegroundService(this, serviceIntent)
@@ -81,11 +92,9 @@ class BatteryProtectionActivity : AppCompatActivity() {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selectedString = parent?.getItemAtPosition(position) as String
                 val selected = selectedString.replace("%", "").toIntOrNull() ?: return
-
                 if (selected != reserveLevel) {
                     reserveLevel = selected
                     prefs.edit { putInt(PrefsConstants.KEY_ENERGY_RESERVE, reserveLevel) }
-
                     if (criticalLevel <= reserveLevel) {
                         criticalLevel = reserveLevel + 1
                         prefs.edit { putInt(PrefsConstants.KEY_CRITICAL_BATTERY, criticalLevel) }
@@ -97,6 +106,7 @@ class BatteryProtectionActivity : AppCompatActivity() {
                     updateSpinnerAdapters()
                 }
             }
+
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
@@ -104,11 +114,9 @@ class BatteryProtectionActivity : AppCompatActivity() {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selectedString = parent?.getItemAtPosition(position) as String
                 val selected = selectedString.replace("%", "").toIntOrNull() ?: return
-
                 if (selected != criticalLevel) {
                     criticalLevel = selected
                     prefs.edit { putInt(PrefsConstants.KEY_CRITICAL_BATTERY, criticalLevel) }
-
                     if (weakLevel <= criticalLevel) {
                         weakLevel = criticalLevel + 1
                         prefs.edit { putInt(PrefsConstants.KEY_WEAK_BATTERY, weakLevel) }
@@ -116,6 +124,7 @@ class BatteryProtectionActivity : AppCompatActivity() {
                     updateSpinnerAdapters()
                 }
             }
+
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
@@ -123,20 +132,20 @@ class BatteryProtectionActivity : AppCompatActivity() {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selectedString = parent?.getItemAtPosition(position) as String
                 val selected = selectedString.replace("%", "").toIntOrNull() ?: return
-
                 if (selected != weakLevel) {
                     weakLevel = selected
                     prefs.edit { putInt(PrefsConstants.KEY_WEAK_BATTERY, weakLevel) }
                 }
             }
+
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
     }
 
     private fun updateSpinnerAdapters() {
-        val reserveList = (0..49).toList()
-        val criticalList = ((reserveLevel + 1)..99).toList()
-        val weakList = ((criticalLevel + 1)..100).toList()
+        val reserveList = (0..MAX_RESERVE_LEVEL).toList()
+        val criticalList = ((reserveLevel + 1)..MAX_CRITICAL_LEVEL).toList()
+        val weakList = ((criticalLevel + 1)..MAX_WEAK_LEVEL).toList()
 
         val reserveStrings = reserveList.map { getString(R.string.percent_format, it) }
         val criticalStrings = criticalList.map { getString(R.string.percent_format, it) }
@@ -161,14 +170,12 @@ class BatteryProtectionActivity : AppCompatActivity() {
     private fun updateUiState(isEnabled: Boolean) {
         textSwitchState.text = if (isEnabled) getString(R.string.status_enabled) else getString(R.string.status_disabled)
         val alphaValue = if (isEnabled) 1.0f else 0.4f
-
         spinnerWeak.isEnabled = isEnabled
         spinnerWeak.alpha = alphaValue
         spinnerCritical.isEnabled = isEnabled
         spinnerCritical.alpha = alphaValue
         spinnerReserve.isEnabled = isEnabled
         spinnerReserve.alpha = alphaValue
-
         findViewById<TextView>(R.id.label_weak).alpha = alphaValue
         findViewById<TextView>(R.id.label_critical).alpha = alphaValue
         findViewById<TextView>(R.id.label_reserve).alpha = alphaValue

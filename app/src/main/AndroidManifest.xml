@@ -30,7 +30,9 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
+        <activity
+            android:name=".ui.AlwaysOnActivity"
+            android:exported="false" />
         <activity android:name=".ui.CleanCacheDialogActivity" android:theme="@style/TransparentTheme" android:configChanges="orientation|screenSize|screenLayout|keyboardHidden" android:exported="false" />
         <activity android:name=".ui.RebootActivity" android:exported="false" />
         <activity android:name=".ui.AutoCleanCacheActivity" android:exported="false" />
